@@ -1,4 +1,10 @@
 package com.db_layer.structures;
 
-public class Day implements IWeatherStruct{
+import com.google.gson.annotations.SerializedName;
+
+public class Day implements IWeatherStruct {
+    @SerializedName("name")
+    String city;
+
+
 }
