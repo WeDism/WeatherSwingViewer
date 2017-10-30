@@ -1,7 +1,7 @@
-package com.functional_layer.struct_constructor.concrete_constructor;
+package com.functional_layer.structs.weather.concrete_constructor;
 
 import com.db_layer.structures.WorkWeek;
-import com.functional_layer.struct_constructor.IWeatherStructConverter;
+import com.functional_layer.structs.weather.IWeatherStructConverter;
 import com.google.gson.JsonElement;
 
 public class WorkWeekConverter<T extends WorkWeek> implements IWeatherStructConverter<T> {

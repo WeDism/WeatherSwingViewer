@@ -1,4 +1,4 @@
-package com.functional_layer.struct_constructor;
+package com.functional_layer.structs.weather;
 
 import com.db_layer.structures.IWeatherStruct;
 import com.google.gson.JsonElement;

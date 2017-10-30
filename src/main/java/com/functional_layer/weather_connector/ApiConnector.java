@@ -2,8 +2,13 @@ package com.functional_layer.weather_connector;
 
 import com.db_layer.structures.IWeatherStruct;
 import com.functional_layer.helpers.HttpRequestHelper;
-import com.functional_layer.struct_constructor.IWeatherStructConverter;
-import com.functional_layer.weather_connector.consts.*;
+import com.functional_layer.structs.location.concrete_location.City;
+import com.functional_layer.structs.location.concrete_location.Country;
+import com.functional_layer.structs.weather.IWeatherStructConverter;
+import com.functional_layer.weather_connector.consts.ApiParams;
+import com.functional_layer.weather_connector.consts.Path;
+import com.functional_layer.weather_connector.consts.UriScheme;
+import com.functional_layer.weather_connector.consts.WeatherPlan;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.eclipse.jetty.client.HttpClient;
@@ -16,12 +21,11 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
     private HttpClient httpClient;
     protected IWeatherStructConverter<T> weatherStructConverter;
 
-    public ApiConnector(String city, String appId, Country country) {
+    protected ApiConnector(City city, String appId, Country country) {
         this.cityAndCountry = String.format("%s,%s", city, country);
         this.appId = appId;
         httpClient = new HttpClient();
         httpClient.setFollowRedirects(false);
-
     }
 
     protected abstract WeatherPlan getWeatherPlan();

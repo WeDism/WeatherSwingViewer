@@ -1,9 +1,9 @@
 package com.functional_layer.helpers;
 
-import com.functional_layer.weather_connector.consts.*;
+import com.functional_layer.structs.location.concrete_location.City;
+import com.functional_layer.structs.location.concrete_location.Country;
+import com.functional_layer.weather_connector.consts.ApiParams;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.HttpProxy;
-import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
@@ -11,26 +11,30 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.functional_layer.weather_connector.consts.Path.*;
-import static com.functional_layer.weather_connector.consts.UriScheme.*;
-import static com.functional_layer.weather_connector.consts.WeatherPlan.*;
+import static com.functional_layer.weather_connector.consts.Path.WEATHER_URL;
+import static com.functional_layer.weather_connector.consts.UriScheme.http;
+import static com.functional_layer.weather_connector.consts.WeatherPlan.Weather;
 import static test_helpers.AssertHelper.assertTrue;
 
 public class HttpRequestHelperTest {
 
-    private HttpClient httpClient = new HttpClient();
-    private String city = "London";
-    private Country country = Country.UK;
+    private HttpClient httpClient;
+    private City city = new City("London");
+    private Country country = new Country("uk");
     private String cityAndCountry = String.format("%s,%s", city, country);
-    private String appId = "a931917869669cee8ee1da9fb35d3dd3";
+    private static final String APPID_VALUE = "a931917869669cee8ee1da9fb35d3dd3";
+
+    public HttpRequestHelperTest() {
+        httpClient = new HttpClient();
+        //region Debug settings for fiddler
+//        ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
+//        HttpProxy proxy = new HttpProxy("127.0.0.1", 8888);
+//        proxyConfig.getProxies().add(proxy);
+        //endregion
+    }
 
     @Before
     public void setUp() throws Exception {
-        //Debug settings for fiddler
-        ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
-        HttpProxy proxy = new HttpProxy("127.0.0.1", 8888);
-        proxyConfig.getProxies().add(proxy);
-
         httpClient.start();
     }
 
@@ -41,7 +45,7 @@ public class HttpRequestHelperTest {
                 HttpRequestHelper.modifyRequest(httpClient
                         .newRequest(http + WEATHER_URL + Weather)
                         .method(HttpMethod.GET), ApiParams.Q, cityAndCountry)
-                        .param(ApiParams.APPID, appId).send();
+                        .param(ApiParams.APPID, APPID_VALUE).send();
 
         assertTrue("Status code: %s but should be %s", contentResponse.getStatus(), HttpStatus.OK_200);
     }
@@ -51,7 +55,7 @@ public class HttpRequestHelperTest {
         ContentResponse contentResponse =
                 HttpRequestHelper.modifyRequest(httpClient.newRequest(http + WEATHER_URL + Weather)
                         .method(HttpMethod.GET)
-                        .param(ApiParams.APPID, appId), ApiParams.Q, cityAndCountry)
+                        .param(ApiParams.APPID, APPID_VALUE), ApiParams.Q, cityAndCountry)
                         .send();
 
         assertTrue("Status code: %s but should be %s", contentResponse.getStatus(), HttpStatus.OK_200);
