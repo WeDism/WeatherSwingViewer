@@ -1,11 +1,11 @@
 package com.weather_viewer.main;
 
-import com.db_layer.structures.Day;
-import com.functional_layer.structs.location.concrete_location.City;
-import com.functional_layer.structs.location.concrete_location.Country;
-import com.functional_layer.weather_connector.IWeatherConnector;
-import com.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+import com.weather_viewer.db_layer.structures.CurrentDay;
+import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
+import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
+import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
+import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import com.weather_viewer.gui.main_form.General;
 
 import javax.swing.*;
@@ -20,8 +20,11 @@ public class Main {
             Logger.getLogger(General.class.getName()).log(Level.SEVERE, null, ex);
         }
         General general = new General();
-        IWeatherConnector<Day> connector = new ApiConnectorWeatherForDay<>(new City("London"), "", new Country("uk"));
         try {
+            IWeatherConnector<CurrentDay> connector =
+                    new ApiConnectorWeatherForDay<>
+                            (new City("London"), "a931917869669cee8ee1da9fb35d3dd3", new Country("uk"), CurrentDay.class);
+
             System.out.println(connector.requestAndGetWeatherStruct());
         } catch (Exception e) {
             e.printStackTrace();
