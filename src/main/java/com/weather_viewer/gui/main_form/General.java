@@ -64,20 +64,9 @@ public class General extends JFrame {
     private int counterResponses;
 
     public General() {
-
-        setMinimumSize(MINIMUM_SIZE);
-        setLocationRelativeTo(null);
-        getContentPane().add(rootPanel);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        changeLocationMenuItem.addActionListener(e -> new Settings(jFrame));
-        rootPanel.registerKeyboardAction(e -> dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
         City samara = new City("Samara");
         String a931917869669cee8ee1da9fb35d3dd3 = "a931917869669cee8ee1da9fb35d3dd3";
         Country ru = new Country("ru");
-
-        CurrentDay currentDay = getCurrentDay(samara, a931917869669cee8ee1da9fb35d3dd3, ru);
-        updateWeatherDayPanel(currentDay);
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -86,6 +75,18 @@ public class General extends JFrame {
                 updateWeatherDayPanel(getCurrentDay(samara, a931917869669cee8ee1da9fb35d3dd3, ru));
             }
         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.SECONDS.toMillis(30));
+
+        setMinimumSize(MINIMUM_SIZE);
+        setLocationRelativeTo(null);
+        getContentPane().add(rootPanel);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        changeLocationMenuItem.addActionListener(e -> new Settings(jFrame));
+        rootPanel.registerKeyboardAction(e -> {
+            timer.cancel();
+            dispose();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+
 
         pack();
         setResizable(false);

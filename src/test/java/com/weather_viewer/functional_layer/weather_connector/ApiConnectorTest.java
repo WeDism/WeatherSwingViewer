@@ -5,10 +5,12 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Ci
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
-import org.junit.Assert;
 import org.junit.Test;
+import test_helpers.TestData;
 
 import static org.junit.Assert.*;
+import static test_helpers.TestData.*;
+import static test_helpers.TestData.RU_COUNTRY;
 
 public class ApiConnectorTest {
 
@@ -16,7 +18,7 @@ public class ApiConnectorTest {
 
     public ApiConnectorTest() {
         connector = new ApiConnectorWeatherForDay<>
-                (new City("Samara"), "a931917869669cee8ee1da9fb35d3dd3", new Country("ru"), CurrentDay.class);
+                (SAMARA, APPID_VALUE, RU_COUNTRY, CurrentDay.class);
 
     }
 
