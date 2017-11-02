@@ -1,4 +1,4 @@
-package com.weather_viewer.db_layer.structures;
+package com.weather_viewer.functional_layer.structs.weather;
 
 
 public class Day implements IWeatherStruct {

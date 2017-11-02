@@ -26,11 +26,11 @@ public class HttpRequestHelperTest {
 
     public HttpRequestHelperTest() {
         httpClient = new HttpClient();
-        //region Debug settings for fiddler
-//        ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
-//        HttpProxy proxy = new HttpProxy("127.0.0.1", 8888);
-//        proxyConfig.getProxies().add(proxy);
-        //endregion
+        //<editor-fold desc="Enable for debug settings for fiddler" defaultstate="collapsed">
+        //ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
+        //HttpProxy proxy = new HttpProxy("127.0.0.1", 8888);
+        //proxyConfig.getProxies().add(proxy);
+        //</editor-fold>
     }
 
     @Before

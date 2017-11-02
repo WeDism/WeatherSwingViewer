@@ -1,6 +1,6 @@
 package com.weather_viewer.functional_layer.weather_deserializers;
 
-import com.weather_viewer.db_layer.structures.Day;
+import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;

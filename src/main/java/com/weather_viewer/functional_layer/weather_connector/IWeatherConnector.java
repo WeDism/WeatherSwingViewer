@@ -1,7 +1,7 @@
 package com.weather_viewer.functional_layer.weather_connector;
 
 import com.google.gson.JsonElement;
-import com.weather_viewer.db_layer.structures.IWeatherStruct;
+import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 
 public interface IWeatherConnector<T extends IWeatherStruct> {
     JsonElement request() throws Exception;

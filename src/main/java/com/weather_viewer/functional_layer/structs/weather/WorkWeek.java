@@ -1,4 +1,4 @@
-package com.weather_viewer.db_layer.structures;
+package com.weather_viewer.functional_layer.structs.weather;
 
 import com.weather_viewer.functional_layer.structs.location.Location;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
@@ -30,7 +30,7 @@ public class WorkWeek implements IWeatherStruct {
         }
 
         @NotNull
-        public static SignatureWorkDay newInstance(SignatureWorkDay signatureWorkDay) {
+        static SignatureWorkDay newInstance(SignatureWorkDay signatureWorkDay) {
             return new SignatureWorkDay(
                     Location.newInstance(signatureWorkDay.getCity()),
                     Location.newInstance(signatureWorkDay.getCountry()));

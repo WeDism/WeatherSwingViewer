@@ -1,4 +1,4 @@
-package com.weather_viewer.db_layer.structures;
+package com.weather_viewer.functional_layer.structs.weather;
 
 import com.weather_viewer.functional_layer.structs.location.Location;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
@@ -50,7 +50,7 @@ public class CurrentDay extends Day {
         }
 
         @NotNull
-        public static SignatureCurrentDay newInstance(SignatureCurrentDay signatureCurrentDay) {
+        static SignatureCurrentDay newInstance(SignatureCurrentDay signatureCurrentDay) {
             return new SignatureCurrentDay(
                     Location.newInstance(signatureCurrentDay.getCity()),
                     Location.newInstance(signatureCurrentDay.getCountry()),

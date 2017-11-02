@@ -1,6 +1,6 @@
 package com.weather_viewer.functional_layer.weather_connector.concrete_connector;
 
-import com.weather_viewer.db_layer.structures.WorkWeek;
+import com.weather_viewer.functional_layer.structs.weather.WorkWeek;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
