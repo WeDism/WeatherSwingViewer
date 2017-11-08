@@ -7,7 +7,7 @@ import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import test_helpers.Path;
+import test_helpers.TestDataPaths;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ public class ApiConnectorWeatherForDayTest {
     public void request() throws Exception {
         final IWeatherConnector<CurrentDay> weatherConnector = Mockito.mock(ApiConnectorWeatherForDay.class);
 
-        JsonElement jsonElement = new JsonParser().parse(Files.readAllLines(Paths.get(Path.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
+        JsonElement jsonElement = new JsonParser().parse(Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
                 .parallelStream().collect(Collectors.joining()));
 
         Mockito.when(weatherConnector.request()).thenReturn(jsonElement);

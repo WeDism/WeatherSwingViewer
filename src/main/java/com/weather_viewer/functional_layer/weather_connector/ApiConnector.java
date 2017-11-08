@@ -10,12 +10,14 @@ import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.helpers.HttpRequestHelper;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
+import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.consts.ApiParams;
 import com.weather_viewer.functional_layer.weather_connector.consts.Path;
 import com.weather_viewer.functional_layer.weather_connector.consts.UriScheme;
 import com.weather_viewer.functional_layer.weather_connector.consts.WeatherPlan;
 import com.weather_viewer.functional_layer.weather_deserializers.CurrentDayDeserializer;
 import com.weather_viewer.functional_layer.weather_deserializers.DayDeserializer;
+import com.weather_viewer.functional_layer.weather_deserializers.WorkWeekDeserializer;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpMethod;
@@ -37,6 +39,7 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
 
         gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(CurrentDay.class, new CurrentDayDeserializer());
+        gsonBuilder.registerTypeAdapter(Workweek.class, new WorkWeekDeserializer());
         gsonBuilder.registerTypeAdapter(Day.class, new DayDeserializer());
         gson = gsonBuilder.create();
     }

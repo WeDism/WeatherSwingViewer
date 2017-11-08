@@ -1,28 +1,37 @@
 package com.weather_viewer.functional_layer.structs.weather;
 
 
+import java.util.Date;
+
 public class Day implements IWeatherStruct {
-    //<editor-fold defaultstate="collapsed" desc="Data">
-    private long dateTime;
-    //</editor-fold>
-    //<editor-fold defaultstate="collapsed" desc="Wind">
+    //region Data
+    private long dateTimeNumber;
+    private Date dateTime;
+
+    public Date getDateTime() {
+        return dateTime;
+    }
+
+    //endregion
+    //region Wind
     private int windDegrees;
     private double windSpeed;
-    //</editor-fold>
-    //<editor-fold defaultstate="collapsed" desc="Weather">
+    //endregion
+    //region Weather
     private String weather;
     private String weatherDescription;
-    //</editor-fold>
-    //<editor-fold defaultstate="collapsed" desc="Main Characteristic">
+    //endregion
+    //region Main Characteristic
     private int humidity;
     private int pressure;
     private int temp;
     private int tempMax;
     private int tempMin;
-    //</editor-fold>
+    //endregion
 
-    public Day(long dateTime, int windDegrees, double windSpeed, String weather, String weatherDescription, int humidity, int pressure, int temp, int tempMax, int tempMin) {
-        this.dateTime = dateTime;
+    public Day(long dateTimeNumber, int windDegrees, double windSpeed, String weather, String weatherDescription, int humidity, int pressure, int temp, int tempMax, int tempMin) {
+        this.dateTimeNumber = dateTimeNumber;
+        dateTime = new Date(dateTimeNumber);
         this.windDegrees = windDegrees;
         this.windSpeed = windSpeed;
         this.weather = weather;
@@ -34,8 +43,8 @@ public class Day implements IWeatherStruct {
         this.tempMin = tempMin;
     }
 
-    public long getDateTime() {
-        return dateTime;
+    public long getDateTimeNumber() {
+        return dateTimeNumber;
     }
 
     public int getWindDegrees() {

@@ -1,4 +1,4 @@
-package com.weather_viewer.gui.settings_form;
+package com.weather_viewer.gui.settings;
 
 import javax.swing.*;
 import java.awt.event.*;

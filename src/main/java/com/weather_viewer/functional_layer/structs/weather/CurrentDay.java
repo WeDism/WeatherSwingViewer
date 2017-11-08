@@ -14,7 +14,7 @@ public class CurrentDay extends Day {
     }
 
     public CurrentDay(Day day, SignatureCurrentDay signatureCurrentDay) {
-        super(day.getDateTime(),
+        super(day.getDateTimeNumber(),
                 day.getWindDegrees(),
                 day.getWindSpeed(),
                 day.getWeather(),

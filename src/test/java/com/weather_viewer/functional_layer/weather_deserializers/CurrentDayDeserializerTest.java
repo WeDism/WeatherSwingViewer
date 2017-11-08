@@ -6,8 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Day;
+import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import org.junit.Test;
-import test_helpers.Path;
+import test_helpers.TestDataPaths;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,7 +21,7 @@ public class CurrentDayDeserializerTest {
 
     @Test
     public void createCurrentDayObject() throws Exception {
-        final String jsonAsString = Files.readAllLines(Paths.get(Path.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
+        final String jsonAsString = Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
                 .parallelStream().collect(Collectors.joining());
 
         assertNotNull("Test file not find", jsonAsString);
@@ -31,6 +32,7 @@ public class CurrentDayDeserializerTest {
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(CurrentDay.class, new CurrentDayDeserializer());
+        gsonBuilder.registerTypeAdapter(Workweek.class, new WorkWeekDeserializer());
         gsonBuilder.registerTypeAdapter(Day.class, new DayDeserializer());
         Gson gson = gsonBuilder.create();
 
