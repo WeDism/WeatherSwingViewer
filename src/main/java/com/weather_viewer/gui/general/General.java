@@ -62,7 +62,7 @@ public class General extends JFrame {
     private JMenuItem changeLocationMenuItem;
     private JTabbedPane tabbedPanel;
     private JMenuItem saveDataPerDayMenuItem;
-    private JCalendar JCalendar;
+    private JCalendar jCalendar;
     private JSpinner spinnerHours;
     private JSpinner spinnerMinutes;
     private JSlider sliderMinutes;
@@ -75,7 +75,8 @@ public class General extends JFrame {
     private IWeatherConnector<CurrentDay> connectorCurrentDay;
     private IWeatherConnector<Workweek> connectorWorkweek;
     private final Timer timer;
-    private int counterResponses;
+    private int counterResponsesCurrentDay;
+    private int counterResponsesWorkweek;
     private CurrentDay currentDay;
     private Workweek workweek;
     private JTable workweekJTable;
@@ -113,16 +114,18 @@ public class General extends JFrame {
             }
         }
         preview.dispose();
-        Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
-        forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
-        initJTable();
+        initJPanelForecast();
+        jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
+
 
         pack();
         setResizable(false);
         setVisible(true);
     }
 
-    private void initJTable() {
+    private void initJPanelForecast() {
+        Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
+        forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
         workweekJTable = new JTable(new WorkweekTable(workweek));
         workweekJScroollPane = new JScrollPane(workweekJTable);
         forecastWorkweekPanelForJTable.add(workweekJScroollPane);
@@ -152,7 +155,7 @@ public class General extends JFrame {
         try {
             connectorCurrentDay = new ApiConnectorWeatherForDay<>(city, appId, country, CurrentDay.class);
             currentDay = connectorCurrentDay.requestAndGetWeatherStruct();
-            logger.log(Level.INFO, "Current Day connector response number is {0}", ++counterResponses);
+            logger.log(Level.INFO, "Current Day connector response number is {0}", ++counterResponsesCurrentDay);
         } catch (Exception e) {
             logger.log(Level.SEVERE, null, e);
         }
@@ -164,7 +167,7 @@ public class General extends JFrame {
         try {
             connectorWorkweek = new ApiConnectorForecastForTheWorkWeek<>(city, appId, country, Workweek.class);
             workweek = connectorWorkweek.requestAndGetWeatherStruct();
-            logger.log(Level.INFO, "Workweek connector response number is {0}", ++counterResponses);
+            logger.log(Level.INFO, "Workweek connector response number is {0}", ++counterResponsesWorkweek);
         } catch (Exception e) {
             logger.log(Level.SEVERE, null, e);
         }
