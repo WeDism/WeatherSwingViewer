@@ -3,8 +3,8 @@ package com.weather_viewer.functional_layer.weather_deserializers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.weather_viewer.functional_layer.structs.weather.Day;
+import helpers.TestDataPaths;
 import org.junit.Test;
-import test_helpers.TestDataPaths;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

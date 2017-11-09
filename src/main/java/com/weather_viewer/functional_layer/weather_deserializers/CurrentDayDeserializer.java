@@ -1,10 +1,10 @@
 package com.weather_viewer.functional_layer.weather_deserializers;
 
 import com.google.gson.*;
-import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
-import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
+import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
+import com.weather_viewer.functional_layer.structs.weather.Day;
 
 import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;

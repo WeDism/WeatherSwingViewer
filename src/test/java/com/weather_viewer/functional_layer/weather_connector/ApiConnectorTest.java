@@ -1,16 +1,13 @@
 package com.weather_viewer.functional_layer.weather_connector;
 
 import com.google.gson.JsonElement;
-import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
-import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import org.junit.Test;
-import test_helpers.TestData;
 
-import static org.junit.Assert.*;
-import static test_helpers.TestData.*;
-import static test_helpers.TestData.RU_COUNTRY;
+import static helpers.TestData.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ApiConnectorTest {
 

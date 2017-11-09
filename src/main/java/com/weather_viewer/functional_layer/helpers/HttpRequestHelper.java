@@ -7,18 +7,24 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public interface HttpRequestHelper {
+public final class HttpRequestHelper {
+
+    private static final Logger LOGGER = Logger.getLogger(HttpRequestHelper.class.getName());
+
+    private HttpRequestHelper() {
+    }
 
     /**
-     * Modyfied method <br><b>org.eclipse.jetty.client.HttpRequest.param(java.lang.String, java.lang.String, boolean)</b>
+     * Modified method <br><b>org.eclipse.jetty.client.HttpRequest.param(java.lang.String, java.lang.String, boolean)</b>
      * <p>You can use if comma contains your URI.</p>
      * <p><b>Warning</b> this params is not encoded</p>
-     * @param request org.eclipse.jetty.client.HttpRequest
-     * @param apiParams query
+     *
+     * @param request        org.eclipse.jetty.client.HttpRequest
+     * @param apiParams      query
      * @param cityAndCountry value
      * @return current object
      */
-    static Request modifyRequest(Request request, String apiParams, String cityAndCountry) {
+    public static Request modifyRequest(Request request, String apiParams, String cityAndCountry) {
         try {
 
             Method method = request.getClass().getDeclaredMethod("param", String.class, String.class, boolean.class);
@@ -38,7 +44,7 @@ public interface HttpRequestHelper {
             uri.set(invoke, null);
 
         } catch (Exception ex) {
-            Logger.getLogger(HttpRequestHelper.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
 
         }
         return request;

@@ -7,8 +7,8 @@ import com.google.gson.JsonParser;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
+import helpers.TestDataPaths;
 import org.junit.Test;
-import test_helpers.TestDataPaths;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

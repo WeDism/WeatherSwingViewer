@@ -12,8 +12,9 @@ import org.junit.Test;
 import static com.weather_viewer.functional_layer.weather_connector.consts.Path.WEATHER_URL;
 import static com.weather_viewer.functional_layer.weather_connector.consts.UriScheme.http;
 import static com.weather_viewer.functional_layer.weather_connector.consts.WeatherPlan.Weather;
-import static test_helpers.AssertHelper.assertTrue;
-import static test_helpers.TestData.*;
+import static helpers.AssertHelper.assertTrue;
+import static helpers.TestData.APPID_VALUE;
+import static helpers.TestData.LONDON_IN_UK;
 
 public class HttpRequestHelperTest {
 

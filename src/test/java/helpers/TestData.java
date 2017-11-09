@@ -1,4 +1,4 @@
-package test_helpers;
+package helpers;
 
 import com.neovisionaries.i18n.CountryCode;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;

@@ -1,7 +1,9 @@
 package com.weather_viewer.gui.settings;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Settings extends JDialog {
     private JPanel contentPane;

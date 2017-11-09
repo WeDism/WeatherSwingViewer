@@ -4,18 +4,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
+import helpers.TestDataPaths;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import test_helpers.TestDataPaths;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-public class ApiConnectorWeatherForDayTest {
+public class ApiConnectorWeatherForDayMockTest {
 
+    //TODO rewrite
     @Test
     public void request() throws Exception {
         final IWeatherConnector<CurrentDay> weatherConnector = Mockito.mock(ApiConnectorWeatherForDay.class);

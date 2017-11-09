@@ -6,7 +6,6 @@ import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import static com.weather_viewer.gui.consts.Sign.*;
 

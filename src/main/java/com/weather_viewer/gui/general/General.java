@@ -6,8 +6,6 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Co
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorForecastForTheWorkWeek;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import com.weather_viewer.gui.preview.Preview;
 import com.weather_viewer.gui.settings.Settings;
 import com.weather_viewer.main.MainPaths;
@@ -83,22 +81,25 @@ public class General extends JFrame {
     private JScrollPane workweekJScroollPane;
     //endregion
 
-    public General() throws Exception {
+    public General(Preview preview,
+                   IWeatherConnector<CurrentDay> connectorCurrentDay,
+                   IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
+        this.connectorCurrentDay = connectorCurrentDay;
+        this.connectorWorkweek = connectorWorkweek;
+
+        timer = new Timer();
         Properties properties = new Properties();
         properties.load(new FileInputStream(MainPaths.CONFIG_PATH));
         City samara = new City(properties.getProperty("currentCity"));
         String valueAppId = properties.getProperty("appId");
         Country ru = new Country(properties.getProperty("countryCode"));
-
-        timer = new Timer();
         initTimer(samara, valueAppId, ru);
 
-        initGeneral();
+        initGeneral(preview);
     }
 
-    private void initGeneral() {
+    private void initGeneral(Preview preview) {
 
-        Preview preview = new Preview();
         addListeners();
 
         setMinimumSize(rootPanel.getMinimumSize());
@@ -153,7 +154,7 @@ public class General extends JFrame {
     private CurrentDay getCurrentDay(City city, String appId, Country country) {
         CurrentDay currentDay = null;
         try {
-            connectorCurrentDay = new ApiConnectorWeatherForDay<>(city, appId, country, CurrentDay.class);
+            connectorCurrentDay.setNewData(city, appId, country);
             currentDay = connectorCurrentDay.requestAndGetWeatherStruct();
             logger.log(Level.INFO, "Current Day connector response number is {0}", ++counterResponsesCurrentDay);
         } catch (Exception e) {
@@ -165,7 +166,7 @@ public class General extends JFrame {
     private Workweek getWorkweek(City city, String appId, Country country) {
         Workweek workweek = null;
         try {
-            connectorWorkweek = new ApiConnectorForecastForTheWorkWeek<>(city, appId, country, Workweek.class);
+            connectorWorkweek.setNewData(city, appId, country);
             workweek = connectorWorkweek.requestAndGetWeatherStruct();
             logger.log(Level.INFO, "Workweek connector response number is {0}", ++counterResponsesWorkweek);
         } catch (Exception e) {
@@ -182,6 +183,5 @@ public class General extends JFrame {
         valuePressurelabel.setText(String.format("%s, %s", String.valueOf(currentDay.getPressure()), PRESSURE));
         valueWeatherLabel.setText(String.format("%s (%s)", currentDay.getWeather(), currentDay.getWeatherDescription()));
     }
-
 
 }
