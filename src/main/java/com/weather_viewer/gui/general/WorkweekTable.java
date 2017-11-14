@@ -23,7 +23,7 @@ public class WorkweekTable implements TableModel {
 
     @Override
     public int getColumnCount() {
-        return 5;
+        return 3;
     }
 
     @Override
@@ -34,11 +34,7 @@ public class WorkweekTable implements TableModel {
             case 1:
                 return "Weather";
             case 2:
-                return "Humidity";
-            case 3:
                 return "Temperature";
-            case 4:
-                return "Pressure";
             default:
                 return null;
         }
@@ -51,7 +47,7 @@ public class WorkweekTable implements TableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return false;
     }
 
     @Override
@@ -65,11 +61,7 @@ public class WorkweekTable implements TableModel {
             case 1:
                 return day.getWeather();
             case 2:
-                return day.getHumidity() + HUMIDITY;
-            case 3:
                 return day.getTemp() + CELSIUS;
-            case 4:
-                return String.format("%s, %s", day.getPressure(), PRESSURE);
             default:
                 return null;
         }

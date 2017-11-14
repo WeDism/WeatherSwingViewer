@@ -24,7 +24,6 @@ import org.eclipse.jetty.http.HttpMethod;
 
 public abstract class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector<T> {
     final private HttpClient httpClient;
-    final private GsonBuilder gsonBuilder;
     final private Gson gson;
     private String cityAndCountry;
     private String appId;
@@ -32,20 +31,21 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
 
     protected ApiConnector(City city, String appId, Country country, Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
-        setNewData(city, appId, country);
+        this.appId = appId;
+        setNewData(city, country);
         httpClient = new HttpClient();
         httpClient.setFollowRedirects(false);
 
-        gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(CurrentDay.class, new CurrentDayDeserializer());
         gsonBuilder.registerTypeAdapter(Workweek.class, new WorkWeekDeserializer());
         gsonBuilder.registerTypeAdapter(Day.class, new DayDeserializer());
         gson = gsonBuilder.create();
     }
 
-    public void setNewData(City city, String appId, Country country) {
+    @Override
+    public void setNewData(City city, Country country) {
         this.cityAndCountry = String.format("%s,%s", city, country);
-        this.appId = appId;
     }
 
     protected abstract WeatherPlan getWeatherPlan();

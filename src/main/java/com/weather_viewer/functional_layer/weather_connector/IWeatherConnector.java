@@ -6,7 +6,7 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Co
 import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 
 public interface IWeatherConnector<T extends IWeatherStruct> {
-    void setNewData(City city, String appId, Country country);
+    void setNewData(City city, Country country);
 
     JsonElement request() throws Exception;
 

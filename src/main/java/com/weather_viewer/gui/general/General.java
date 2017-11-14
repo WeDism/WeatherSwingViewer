@@ -4,17 +4,15 @@ import com.toedter.calendar.JCalendar;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
+import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.preview.Preview;
 import com.weather_viewer.gui.settings.Settings;
-import com.weather_viewer.main.MainPaths;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.FileInputStream;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +24,7 @@ import static com.weather_viewer.gui.consts.Sign.*;
 public class General extends JFrame {
 
     //region Fields
-    private final Logger logger = Logger.getLogger(General.class.getName());
+    private final Logger LOGGER = Logger.getLogger(General.class.getName());
     //region Labels
     private JLabel locationLabel;
     private JLabel weatherLabel;
@@ -73,12 +71,12 @@ public class General extends JFrame {
     private IWeatherConnector<CurrentDay> connectorCurrentDay;
     private IWeatherConnector<Workweek> connectorWorkweek;
     private final Timer timer;
-    private int counterResponsesCurrentDay;
-    private int counterResponsesWorkweek;
+    private int counterResponses;
     private CurrentDay currentDay;
     private Workweek workweek;
     private JTable workweekJTable;
     private JScrollPane workweekJScroollPane;
+    private Preview preview;
     //endregion
 
     public General(Preview preview,
@@ -86,93 +84,94 @@ public class General extends JFrame {
                    IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
         this.connectorCurrentDay = connectorCurrentDay;
         this.connectorWorkweek = connectorWorkweek;
-
         timer = new Timer();
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(MainPaths.CONFIG_PATH));
-        City samara = new City(properties.getProperty("currentCity"));
-        String valueAppId = properties.getProperty("appId");
-        Country ru = new Country(properties.getProperty("countryCode"));
-        initTimer(samara, valueAppId, ru);
 
+
+        initTimer(connectorCurrentDay, connectorWorkweek, null, null, null);
         initGeneral(preview);
     }
 
     private void initGeneral(Preview preview) {
-
         addListeners();
+        initJPanelForecast();
+        initJCalendar();
 
         setMinimumSize(rootPanel.getMinimumSize());
         setLocationRelativeTo(null);
         getContentPane().add(rootPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        for (int i = 0; workweek == null && currentDay == null && i < 10_000; i++) {
+        for (int i = 0; (workweek == null || currentDay == null) && i < 10_000; i++) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                logger.log(Level.SEVERE, null, e);
+                LOGGER.log(Level.SEVERE, null, e);
             }
         }
         preview.dispose();
-        initJPanelForecast();
-        jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
-
-
-        pack();
-        setResizable(false);
-        setVisible(true);
-    }
-
-    private void initJPanelForecast() {
-        Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
-        forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
-        workweekJTable = new JTable(new WorkweekTable(workweek));
-        workweekJScroollPane = new JScrollPane(workweekJTable);
-        forecastWorkweekPanelForJTable.add(workweekJScroollPane);
+        if (workweek != null && currentDay != null) {
+            pack();
+            setResizable(false);
+            setVisible(true);
+        } else exit();
     }
 
     private void addListeners() {
         changeLocationMenuItem.addActionListener(e -> new Settings(jFrame));
 
-        rootPanel.registerKeyboardAction(e -> {
-            timer.cancel();
-            dispose();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        rootPanel.registerKeyboardAction(e -> exit()
+                , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private void initTimer(City city, String valueAppId, Country country) {
+    private void initTimer(
+            IWeatherConnector<CurrentDay> connectorCurrentDay, IWeatherConnector<Workweek> connectorWorkweek,
+            City city, String valueAppId, Country country) {
+
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                updateWeatherDayPanel(getCurrentDay(city, valueAppId, country));
-                workweek = getWorkweek(city, valueAppId, country);
+                currentDay = getIWeatherStruct(connectorCurrentDay, CurrentDay.class, city, valueAppId, country);
+                updateWeatherDayPanel(currentDay);
+                workweek = getIWeatherStruct(connectorWorkweek, Workweek.class, city, valueAppId, country);
+                updateJPanelForecast(workweek);
             }
         }, 0, TimeUnit.SECONDS.toMillis(30));
     }
 
-    private CurrentDay getCurrentDay(City city, String appId, Country country) {
-        CurrentDay currentDay = null;
+    private <T extends IWeatherStruct> T getIWeatherStruct(IWeatherConnector<T> iWeatherConnector, Class<T> clazz,
+                                                           City city, String appId, Country country) {
+        T iWeatherStruct = null;
         try {
-            connectorCurrentDay.setNewData(city, appId, country);
-            currentDay = connectorCurrentDay.requestAndGetWeatherStruct();
-            logger.log(Level.INFO, "Current Day connector response number is {0}", ++counterResponsesCurrentDay);
+            if (city != null && appId != null && country != null) iWeatherConnector.setNewData(city, country);
+            iWeatherStruct = iWeatherConnector.requestAndGetWeatherStruct();
+            LOGGER.log(Level.INFO, "{0} connector response number is {1}", new Object[]{clazz.getSimpleName(), ++counterResponses});
         } catch (Exception e) {
-            logger.log(Level.SEVERE, null, e);
+            LOGGER.log(Level.SEVERE, null, e);
+            System.exit(0);
         }
-        return currentDay;
+        return iWeatherStruct;
     }
 
-    private Workweek getWorkweek(City city, String appId, Country country) {
-        Workweek workweek = null;
-        try {
-            connectorWorkweek.setNewData(city, appId, country);
-            workweek = connectorWorkweek.requestAndGetWeatherStruct();
-            logger.log(Level.INFO, "Workweek connector response number is {0}", ++counterResponsesWorkweek);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, null, e);
-        }
-        return workweek;
+    private void initJPanelForecast() {
+        workweekJTable = new JTable();
+        workweekJTable.setShowVerticalLines(false);
+        workweekJTable.setFont(new Font("Arial", Font.PLAIN, 22));
+        workweekJTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        workweekJTable.setRowHeight(workweekJTable.getRowHeight() + (workweekJTable.getRowHeight() / 2));
+        workweekJScroollPane = new JScrollPane(workweekJTable);
+        forecastWorkweekPanelForJTable.add(workweekJScroollPane);
+    }
+
+    private void initJCalendar() {
+        jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
+    }
+
+    private void updateJPanelForecast(Workweek workweek) {
+        Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
+        forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
+        workweekJTable.setModel(new WorkweekTable(workweek));
+        workweekJTable.getColumnModel().getColumn(0)
+                .setMinWidth(String.valueOf(workweekJTable.getModel().getValueAt(0, 0)).length() + 100);
     }
 
     private void updateWeatherDayPanel(CurrentDay currentDay) {
@@ -184,4 +183,8 @@ public class General extends JFrame {
         valueWeatherLabel.setText(String.format("%s (%s)", currentDay.getWeather(), currentDay.getWeatherDescription()));
     }
 
+    private void exit() {
+        timer.cancel();
+        this.dispose();
+    }
 }
