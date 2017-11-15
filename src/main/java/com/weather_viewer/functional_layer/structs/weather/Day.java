@@ -21,7 +21,7 @@ public class Day implements IWeatherStruct {
     private String weather;
     private String weatherDescription;
     //endregion
-    //region Main Characteristic
+    //region com.weather_viewer.main.Main Characteristic
     private int humidity;
     private int pressure;
     private int temp;
