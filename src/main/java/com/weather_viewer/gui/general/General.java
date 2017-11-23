@@ -16,6 +16,7 @@ import com.weather_viewer.gui.settings.Settings;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -104,13 +105,9 @@ public class General extends JFrame {
         getContentPane().add(rootPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        for (int i = 0; (workweek == null || currentDay == null) && i < 10_000; i++) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                LOGGER.log(Level.SEVERE, null, e);
-            }
-        }
+        LocalDateTime maxTime = LocalDateTime.now().plusMinutes(TimeUnit.MINUTES.toMillis(3));
+        while ((workweek == null || currentDay == null) && LocalDateTime.now().isBefore(maxTime)) ;
+
         preview.dispose();
         if (workweek != null && currentDay != null) {
             pack();
@@ -189,6 +186,25 @@ public class General extends JFrame {
     private void exit() {
         timer.cancel();
         this.dispose();
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     {
@@ -406,25 +422,6 @@ public class General extends JFrame {
         notificationPanel.add(sliderHours, new GridConstraints(0, 2, 6, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         jCalendar = new JCalendar();
         notificationPanel.add(jCalendar, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(300, 300), null, null, 0, false));
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**

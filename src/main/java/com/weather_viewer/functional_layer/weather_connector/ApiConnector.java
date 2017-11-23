@@ -32,7 +32,8 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
     protected ApiConnector(City city, String appId, Country country, Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
         this.appId = appId;
-        setNewData(city, country);
+        this.setNewData(city, country);
+
         httpClient = new HttpClient();
         httpClient.setFollowRedirects(false);
 
