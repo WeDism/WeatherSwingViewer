@@ -39,9 +39,9 @@ public class GeneralFormSpyTest {
     @Test
     public void counterCallsPreview() throws Exception {
         IWeatherConnector<CurrentDay> connectorWeatherForDay
-                = spy(new ApiConnectorWeatherForDay(SAMARA, APPID_VALUE, RU_COUNTRY, CurrentDay.class));
+                = spy(new ApiConnectorWeatherForDay(SAMARA, RU_COUNTRY, CurrentDay.class));
         IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
-                = spy(new ApiConnectorForecastForTheWorkweek(SAMARA, APPID_VALUE, RU_COUNTRY, Workweek.class));
+                = spy(new ApiConnectorForecastForTheWorkweek(SAMARA, RU_COUNTRY, Workweek.class));
 
         Preview preview = new Preview();
         when(connectorWeatherForDay.request()).thenReturn(jsonElementCurrentDay);

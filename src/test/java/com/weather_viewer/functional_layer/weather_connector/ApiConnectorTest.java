@@ -15,7 +15,7 @@ public class ApiConnectorTest {
 
     public ApiConnectorTest() {
         connector = new ApiConnectorWeatherForDay<>
-                (SAMARA, APPID_VALUE, RU_COUNTRY, CurrentDay.class);
+                (SAMARA, RU_COUNTRY, CurrentDay.class);
 
     }
 

@@ -29,9 +29,9 @@ public class GeneralFormStubTest {
     @Test
     public void testDisposePreview() throws Exception {
         IWeatherConnector<CurrentDay> connectorWeatherForDay
-                = new ApiConnectorWeatherForDay<>(SAMARA, APPID_VALUE, RU_COUNTRY, CurrentDay.class);
+                = new ApiConnectorWeatherForDay<>(SAMARA, RU_COUNTRY, CurrentDay.class);
         IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
-                = new ApiConnectorForecastForTheWorkweek<>(SAMARA, APPID_VALUE, RU_COUNTRY, Workweek.class);
+                = new ApiConnectorForecastForTheWorkweek<>(SAMARA, RU_COUNTRY, Workweek.class);
 
         final PreviewFormStub previewFormStub = new PreviewFormStub();
         General general = new General(previewFormStub, connectorWeatherForDay, connectorForecastForTheWorkWeek);

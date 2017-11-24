@@ -45,7 +45,6 @@ public final class HttpRequestHelper {
 
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
-
         }
         return request;
     }

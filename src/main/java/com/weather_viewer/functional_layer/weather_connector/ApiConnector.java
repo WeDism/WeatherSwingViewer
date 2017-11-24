@@ -22,16 +22,31 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpMethod;
 
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public abstract class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector<T> {
+    private static final Logger LOGGER = Logger.getLogger(ApiConnector.class.getName());
+    private final static String APP_ID;
     final private HttpClient httpClient;
     final private Gson gson;
     private String cityAndCountry;
-    private String appId;
     private Class<T> typeParameterClass;
 
-    protected ApiConnector(City city, String appId, Country country, Class<T> typeParameterClass) {
+    static {
+        Properties properties = new Properties();
+        try {
+            properties.load(ApiConnector.class.getResourceAsStream("/config.properties"));
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        APP_ID = properties.getProperty("appId");
+    }
+
+    protected ApiConnector(City city, Country country, Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
-        this.appId = appId;
         this.setNewData(city, country);
 
         httpClient = new HttpClient();
@@ -58,7 +73,7 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
                 HttpRequestHelper.modifyRequest(httpClient
                         .newRequest(UriScheme.http + Path.WEATHER_URL + getWeatherPlan())
                         .method(HttpMethod.GET), ApiParams.Q, cityAndCountry)
-                        .param(ApiParams.APPID, appId)
+                        .param(ApiParams.APPID, APP_ID)
                         .param(ApiParams.UNITS, ApiParams.UNITS_METRIC_VALUE).send();
 
         httpClient.stop();

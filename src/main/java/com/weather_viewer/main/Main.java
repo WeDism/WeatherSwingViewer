@@ -25,14 +25,13 @@ public class Main {
             Properties properties = new Properties();
             properties.load(Main.class.getResourceAsStream("/config.properties"));
             City samara = new City(properties.getProperty("currentCity"));
-            String valueAppId = properties.getProperty("appId");
             Country ru = new Country(properties.getProperty("countryCode"));
 
             UIManager.setLookAndFeel(new WindowsLookAndFeel());
             IWeatherConnector<CurrentDay> connectorWeatherForDay
-                    = new ApiConnectorWeatherForDay<>(new City("Samara"), "a931917869669cee8ee1da9fb35d3dd3", new Country("ru"), CurrentDay.class);
+                    = new ApiConnectorWeatherForDay<>(samara, ru, CurrentDay.class);
             IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
-                    = new ApiConnectorForecastForTheWorkweek<>(new City("Samara"), "a931917869669cee8ee1da9fb35d3dd3", new Country("ru"), Workweek.class);
+                    = new ApiConnectorForecastForTheWorkweek<>(samara, ru, Workweek.class);
             new General(new Preview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
