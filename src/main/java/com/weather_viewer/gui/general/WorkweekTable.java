@@ -7,7 +7,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.text.SimpleDateFormat;
 
-import static com.weather_viewer.gui.consts.Sign.*;
+import static com.weather_viewer.gui.consts.Sign.CELSIUS;
 
 public class WorkweekTable implements TableModel {
     private Workweek workweek;

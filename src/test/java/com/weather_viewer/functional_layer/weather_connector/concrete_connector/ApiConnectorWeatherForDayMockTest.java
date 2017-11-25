@@ -3,6 +3,7 @@ package com.weather_viewer.functional_layer.weather_connector.concrete_connector
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
+import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import helpers.TestDataPaths;
 import org.junit.Assert;
@@ -19,7 +20,7 @@ public class ApiConnectorWeatherForDayMockTest {
     //TODO rewrite
     @Test
     public void request() throws Exception {
-        final IWeatherConnector<CurrentDay> weatherConnector = Mockito.mock(ApiConnectorWeatherForDay.class);
+        final IWeatherConnector<CurrentDay> weatherConnector = Mockito.mock(ApiConnector.class);
 
         JsonElement jsonElement = new JsonParser().parse(Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
                 .parallelStream().collect(Collectors.joining()));

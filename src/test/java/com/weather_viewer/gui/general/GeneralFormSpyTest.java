@@ -4,9 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
+import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorForecastForTheWorkweek;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import com.weather_viewer.gui.preview.Preview;
 import helpers.TestDataPaths;
 import org.junit.Test;
@@ -39,9 +38,9 @@ public class GeneralFormSpyTest {
     @Test
     public void counterCallsPreview() throws Exception {
         IWeatherConnector<CurrentDay> connectorWeatherForDay
-                = spy(new ApiConnectorWeatherForDay(SAMARA, RU_COUNTRY, CurrentDay.class));
+                = spy(ApiConnector.build(SAMARA, RU_COUNTRY, CurrentDay.class));
         IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
-                = spy(new ApiConnectorForecastForTheWorkweek(SAMARA, RU_COUNTRY, Workweek.class));
+                = spy(ApiConnector.build(SAMARA, RU_COUNTRY, Workweek.class));
 
         Preview preview = new Preview();
         when(connectorWeatherForDay.request()).thenReturn(jsonElementCurrentDay);

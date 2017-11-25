@@ -5,13 +5,13 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Ci
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
+import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorForecastForTheWorkweek;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import com.weather_viewer.gui.general.General;
 import com.weather_viewer.gui.preview.Preview;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +20,16 @@ public class Main {
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
+    static {
+        try {
+            UIManager.setLookAndFeel(new WindowsLookAndFeel());
+            UIManager.getLookAndFeelDefaults()
+                    .put("defaultFont", new Font("Arial", Font.PLAIN, 14));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Properties properties = new Properties();
@@ -27,11 +37,9 @@ public class Main {
             City samara = new City(properties.getProperty("currentCity"));
             Country ru = new Country(properties.getProperty("countryCode"));
 
-            UIManager.setLookAndFeel(new WindowsLookAndFeel());
-            IWeatherConnector<CurrentDay> connectorWeatherForDay
-                    = new ApiConnectorWeatherForDay<>(samara, ru, CurrentDay.class);
-            IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
-                    = new ApiConnectorForecastForTheWorkweek<>(samara, ru, Workweek.class);
+            IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
+            IWeatherConnector<CurrentDay> connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
+
             new General(new Preview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);

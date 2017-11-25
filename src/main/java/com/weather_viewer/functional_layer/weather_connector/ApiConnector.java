@@ -21,21 +21,30 @@ import com.weather_viewer.functional_layer.weather_deserializers.WorkWeekDeseria
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpMethod;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector<T> {
+public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector<T> {
     private static final Logger LOGGER = Logger.getLogger(ApiConnector.class.getName());
-    private final static String APP_ID;
+    private static final String APP_ID;
+    private static final Map<Type, WeatherPlan> WEATHER_PLAN_HASH_MAP = new HashMap<>();
     final private HttpClient httpClient;
     final private Gson gson;
-    private String cityAndCountry;
+    private City city;
+    private Country country;
     private Class<T> typeParameterClass;
 
     static {
+        WEATHER_PLAN_HASH_MAP.put(CurrentDay.class, WeatherPlan.Weather);
+        WEATHER_PLAN_HASH_MAP.put(Workweek.class, WeatherPlan.ForecastForTheWorkWeek);
+
         Properties properties = new Properties();
         try {
             properties.load(ApiConnector.class.getResourceAsStream("/config.properties"));
@@ -43,11 +52,11 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
             LOGGER.log(Level.SEVERE, null, ex);
         }
         APP_ID = properties.getProperty("appId");
+
     }
 
-    protected ApiConnector(City city, Country country, Class<T> typeParameterClass) {
+    private ApiConnector(Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
-        this.setNewData(city, country);
 
         httpClient = new HttpClient();
         httpClient.setFollowRedirects(false);
@@ -59,19 +68,34 @@ public abstract class ApiConnector<T extends IWeatherStruct> implements IWeather
         gson = gsonBuilder.create();
     }
 
-    @Override
-    public void setNewData(City city, Country country) {
-        this.cityAndCountry = String.format("%s,%s", city, country);
+    private ApiConnector(City city, Country country, Class<T> typeParameterClass) {
+        this(typeParameterClass);
+        this.setNewData(city, country);
     }
 
-    protected abstract WeatherPlan getWeatherPlan();
+    public static <T extends IWeatherStruct> IWeatherConnector<T> build(@NotNull City city, @NotNull Country country, @NotNull Class<T> typeParameterClass) {
+        return new ApiConnector<>(city, country, typeParameterClass);
+    }
+
+    public static <T extends IWeatherStruct> IWeatherConnector<T> build(@NotNull Class<T> typeParameterClass) {
+        return new ApiConnector<>(typeParameterClass);
+    }
+
+    @Override
+    public void setNewData(@NotNull City city, @NotNull Country country) {
+        this.city = city;
+        this.country = country;
+    }
 
     @Override
     public JsonElement request() throws Exception {
+        if (city == null || country == null) throw new NullPointerException("City or Country are null");
+        String cityAndCountry = String.format("%s,%s", city, country);
+
         httpClient.start();
         ContentResponse contentResponse =
                 HttpRequestHelper.modifyRequest(httpClient
-                        .newRequest(UriScheme.http + Path.WEATHER_URL + getWeatherPlan())
+                        .newRequest(UriScheme.http + Path.WEATHER_URL + WEATHER_PLAN_HASH_MAP.get(typeParameterClass))
                         .method(HttpMethod.GET), ApiParams.Q, cityAndCountry)
                         .param(ApiParams.APPID, APP_ID)
                         .param(ApiParams.UNITS, ApiParams.UNITS_METRIC_VALUE).send();

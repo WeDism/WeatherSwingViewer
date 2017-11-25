@@ -2,7 +2,6 @@ package com.weather_viewer.functional_layer.weather_connector;
 
 import com.google.gson.JsonElement;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
-import com.weather_viewer.functional_layer.weather_connector.concrete_connector.ApiConnectorWeatherForDay;
 import org.junit.Test;
 
 import static helpers.TestData.*;
@@ -14,8 +13,7 @@ public class ApiConnectorTest {
     private final IWeatherConnector<CurrentDay> connector;
 
     public ApiConnectorTest() {
-        connector = new ApiConnectorWeatherForDay<>
-                (SAMARA, RU_COUNTRY, CurrentDay.class);
+        connector = ApiConnector.build(SAMARA, RU_COUNTRY, CurrentDay.class);
 
     }
 

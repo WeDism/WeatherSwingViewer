@@ -1,6 +1,7 @@
 package com.weather_viewer.functional_layer.structs.location;
 
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -8,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 public abstract class Location {
     private String location;
 
-    public Location(String location) {
+    public Location(@NotNull String location) {
         this.location = location;
     }
 
