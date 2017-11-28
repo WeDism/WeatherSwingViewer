@@ -1,21 +1,21 @@
-package com.weather_viewer.gui.preview;
+package com.weather_viewer.gui.previews.loading;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.weather_viewer.gui.general.General;
-import com.weather_viewer.gui.settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class Preview extends JFrame {
+public class LoadingPreview extends JFrame {
     private JPanel rootPanel;
     private JLabel gifLabel;
 
-    public Preview() throws HeadlessException {
-        setLocationRelativeTo(null);
+    public LoadingPreview(Component component) {
+        setLocationRelativeTo(component);
         getContentPane().add(rootPanel);
         setUndecorated(true);
+        setFocusableWindowState(true);
+        setAlwaysOnTop(true);
 
         setBackground(new Color(0, 0, 0, 0));
 
@@ -66,7 +66,7 @@ public class Preview extends JFrame {
         rootPanel.setPreferredSize(new Dimension(256, 256));
         gifLabel = new JLabel();
         gifLabel.setDoubleBuffered(true);
-        gifLabel.setIcon(new ImageIcon(getClass().getResource("/gif/loading.gif")));
+        gifLabel.setIcon(new ImageIcon(getClass().getResource("/gif/search.gif")));
         gifLabel.setText("");
         rootPanel.add(gifLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }

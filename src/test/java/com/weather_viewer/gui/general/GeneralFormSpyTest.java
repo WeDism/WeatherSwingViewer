@@ -6,7 +6,7 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.gui.preview.Preview;
+import com.weather_viewer.gui.previews.start.StartPreview;
 import helpers.TestDataPaths;
 import org.junit.Test;
 
@@ -42,10 +42,10 @@ public class GeneralFormSpyTest {
         IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
                 = spy(ApiConnector.build(SAMARA, RU_COUNTRY, Workweek.class));
 
-        Preview preview = new Preview();
+        StartPreview startPreview = new StartPreview();
         when(connectorWeatherForDay.request()).thenReturn(jsonElementCurrentDay);
         when(connectorForecastForTheWorkWeek.request()).thenReturn(jsonElementWorkweek);
-        General general = new General(preview, connectorWeatherForDay, connectorForecastForTheWorkWeek);
+        General general = new General(startPreview, connectorWeatherForDay, connectorForecastForTheWorkWeek);
         general.dispose();
 
         verify(connectorWeatherForDay, times(1)).requestAndGetWeatherStruct();

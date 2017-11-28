@@ -8,7 +8,7 @@ import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.General;
-import com.weather_viewer.gui.preview.Preview;
+import com.weather_viewer.gui.previews.start.StartPreview;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +40,7 @@ public class Main {
             IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
             IWeatherConnector<CurrentDay> connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
 
-            new General(new Preview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
+            new General(new StartPreview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

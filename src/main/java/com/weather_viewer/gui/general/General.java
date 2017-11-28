@@ -10,7 +10,7 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.gui.preview.Preview;
+import com.weather_viewer.gui.previews.start.StartPreview;
 import com.weather_viewer.gui.settings.Settings;
 
 import javax.swing.*;
@@ -80,10 +80,10 @@ public class General extends JFrame {
     private Workweek workweek;
     private JTable workweekJTable;
     private JScrollPane workweekJScroollPane;
-    private Preview preview;
+    private StartPreview startPreview;
     //endregion
 
-    public General(Preview preview,
+    public General(StartPreview startPreview,
                    IWeatherConnector<CurrentDay> connectorCurrentDay,
                    IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
         this.connectorCurrentDay = connectorCurrentDay;
@@ -92,10 +92,10 @@ public class General extends JFrame {
 
 
         initTimer(connectorCurrentDay, connectorWorkweek, null, null, null);
-        initGeneral(preview);
+        initGeneral(startPreview);
     }
 
-    private void initGeneral(Preview preview) {
+    private void initGeneral(StartPreview startPreview) {
         addListeners();
         initJPanelForecast();
         initJCalendar();
@@ -108,7 +108,7 @@ public class General extends JFrame {
         LocalDateTime maxTime = LocalDateTime.now().plusMinutes(TimeUnit.MINUTES.toMillis(3));
         while ((workweek == null || currentDay == null) && LocalDateTime.now().isBefore(maxTime)) ;
 
-        preview.dispose();
+        startPreview.dispose();
         if (workweek != null && currentDay != null) {
             pack();
             setResizable(false);

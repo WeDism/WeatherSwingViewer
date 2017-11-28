@@ -9,7 +9,6 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Co
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.gui.preview.Preview;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,6 +51,7 @@ public class Settings extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setLocationRelativeTo(parentFrame);
+        setResizable(false);
         pack();
         setVisible(true);
 
@@ -96,18 +96,20 @@ public class Settings extends JDialog {
             return;
         }
         connector.setNewData(new City(labelCityName), new Country(comboBoxCountryCode));
-        currentDay = findCity(connector);
-        if (currentDay != null) {
-            if (state == FindState.NotStartFind || state == FindState.NotFind) {
-                state = FindState.Find;
-                cityIsFindCheckBox.setSelected(true);
-            } else if (state == FindState.Find)
-                state = FindState.ApprovedFind;
-            else state = FindState.Find;
-        } else {
-            cityIsFindCheckBox.setSelected(false);
-            state = FindState.NotFind;
-        }
+        new Thread(() -> {
+            currentDay = findCity(connector);
+            if (currentDay != null) {
+                if (state == FindState.NotStartFind || state == FindState.NotFind) {
+                    state = FindState.Find;
+                    cityIsFindCheckBox.setSelected(true);
+                } else if (state == FindState.Find)
+                    state = FindState.ApprovedFind;
+                else state = FindState.Find;
+            } else {
+                cityIsFindCheckBox.setSelected(false);
+                state = FindState.NotFind;
+            }
+        }).start();
     }
 
     private CurrentDay findCity(IWeatherConnector<CurrentDay> connector) {
@@ -186,7 +188,7 @@ public class Settings extends JDialog {
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         searchLabel = new JLabel();
         searchLabel.setText("Search city");
-        panel3.add(searchLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(searchLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel3.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         cityTextField = new JTextField();
@@ -196,7 +198,7 @@ public class Settings extends JDialog {
         selectCountryLabel = new JLabel();
         selectCountryLabel.setName("");
         selectCountryLabel.setText("Select country");
-        panel3.add(selectCountryLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(selectCountryLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         comboBoxCountry = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         comboBoxCountry.setModel(defaultComboBoxModel1);

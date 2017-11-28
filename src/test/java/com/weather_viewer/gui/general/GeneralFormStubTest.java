@@ -4,7 +4,7 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.gui.preview.Preview;
+import com.weather_viewer.gui.previews.start.StartPreview;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ import java.awt.*;
 import static helpers.TestData.*;
 
 public class GeneralFormStubTest {
-    static class PreviewFormStub extends Preview {
+    static class PreviewFormStub extends StartPreview {
         private boolean isDispose;
 
         private PreviewFormStub() throws HeadlessException {
@@ -40,6 +40,6 @@ public class GeneralFormStubTest {
         final PreviewFormStub previewFormStub = new PreviewFormStub();
         General general = new General(previewFormStub, connectorWeatherForDay, connectorForecastForTheWorkWeek);
         general.dispose();
-        Assert.assertTrue("Preview was disposed", previewFormStub.wasDisposed());
+        Assert.assertTrue("StartPreview was disposed", previewFormStub.wasDisposed());
     }
 }
