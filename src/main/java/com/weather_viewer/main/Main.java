@@ -39,7 +39,7 @@ public class Main {
             IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
             IWeatherConnector<CurrentDay> connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
 
-            General general = new General(new StartPreview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
+            new General(new StartPreview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

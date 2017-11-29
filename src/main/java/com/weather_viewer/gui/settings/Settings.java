@@ -9,6 +9,7 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Co
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
+import com.weather_viewer.gui.general.General;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -23,6 +27,7 @@ import java.util.stream.Stream;
 
 public class Settings extends JDialog {
     private static final Logger LOGGER = Logger.getLogger(Settings.class.getName());
+    private final General parentFrame;
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -32,21 +37,32 @@ public class Settings extends JDialog {
     private JComboBox<String> comboBoxCountry;
     private JLabel selectCountryLabel;
     private JButton searchButton;
-    private FindState state = FindState.NotStartFind;
-    private IWeatherConnector<CurrentDay> connector;
-    private CurrentDay currentDay;
+    private IWeatherConnector<CurrentDay.SignatureCurrentDay> connector;
+    private ExecutorService executor;
+    private AtomicReference<CurrentDay.SignatureCurrentDay> signatureCurrentDay;
 
-    public Settings(JFrame parentFrame) {
-        connector = ApiConnector.build(CurrentDay.class);
-
+    private Settings(General parentFrame) {
+        this.parentFrame = parentFrame;
+        connector = ApiConnector.build(CurrentDay.SignatureCurrentDay.class);
+        executor = Executors.newSingleThreadExecutor();
         addListeners();
-
         comboBoxCountry.setModel(
                 new DefaultComboBoxModel<>(Stream.of(CountryCode.values())
                         .map(map -> map.toLocale().getCountry())
                         .collect(Collectors.toList())
                         .toArray(new String[CountryCode.values().length])));
+    }
 
+    public Settings(General parentFrame, AtomicReference<CurrentDay.SignatureCurrentDay> signatureCurrentDay) {
+        this(parentFrame);
+        this.signatureCurrentDay = signatureCurrentDay;
+
+        initJDialog(parentFrame);
+    }
+
+    private void initJDialog(General parentFrame) {
+        setTitle("Choose location");
+        setIconImage(parentFrame.getIconImage());
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -54,7 +70,6 @@ public class Settings extends JDialog {
         setResizable(false);
         pack();
         setVisible(true);
-
     }
 
     private void addListeners() {
@@ -96,34 +111,27 @@ public class Settings extends JDialog {
             return;
         }
         connector.setNewData(new City(labelCityName), new Country(comboBoxCountryCode));
-        new Thread(() -> {
-            currentDay = findCity(connector);
-            if (currentDay != null) {
-                if (state == FindState.NotStartFind || state == FindState.NotFind) {
-                    state = FindState.Find;
-                    cityIsFindCheckBox.setSelected(true);
-                } else if (state == FindState.Find)
-                    state = FindState.ApprovedFind;
-                else state = FindState.Find;
-            } else {
-                cityIsFindCheckBox.setSelected(false);
-                state = FindState.NotFind;
-            }
-        }).start();
+        executor.execute(() -> findCityAndChangeCheckBox(connector));
+
     }
 
-    private CurrentDay findCity(IWeatherConnector<CurrentDay> connector) {
-        CurrentDay currentDay = null;
+    private void findCityAndChangeCheckBox(IWeatherConnector<CurrentDay.SignatureCurrentDay> connector) {
+        CurrentDay.SignatureCurrentDay signatureCurrentDayDerived = null;
         try {
-            currentDay = connector.requestAndGetWeatherStruct();
+            signatureCurrentDayDerived = connector.requestAndGetWeatherStruct();
+            signatureCurrentDay.set(signatureCurrentDayDerived);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
-        return currentDay;
+        if (signatureCurrentDayDerived != null)
+            cityIsFindCheckBox.setSelected(true);
+        else
+            cityIsFindCheckBox.setSelected(false);
     }
 
     private void onOK() {
-        if (state == FindState.ApprovedFind) {
+        if (cityIsFindCheckBox.isSelected()) {
+            parentFrame.onChangeLocationData();
             dispose();
         }
     }

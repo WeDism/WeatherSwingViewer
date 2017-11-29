@@ -12,15 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class CurrentDayDeserializer implements JsonDeserializer<CurrentDay> {
     @Override
     public CurrentDay deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        final JsonObject jsonObject = json.getAsJsonObject();
-        final JsonObject sys = jsonObject.getAsJsonObject("sys");
         final Day day = context.deserialize(json, Day.class);
-
-        CurrentDay.SignatureCurrentDay signatureCurrentDay = new CurrentDay.SignatureCurrentDay(
-                new City(jsonObject.get("name").getAsString()),
-                new Country(sys.get("country").getAsString()),
-                sys.get("sunrise").getAsLong() * TimeUnit.SECONDS.toMillis(1),
-                sys.get("sunset").getAsLong() * TimeUnit.SECONDS.toMillis(1));
+        final CurrentDay.SignatureCurrentDay signatureCurrentDay = context.deserialize(json, CurrentDay.SignatureCurrentDay.class);
 
         return
                 new CurrentDay(

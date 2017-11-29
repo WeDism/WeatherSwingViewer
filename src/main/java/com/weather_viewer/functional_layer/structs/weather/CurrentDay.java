@@ -31,7 +31,7 @@ public class CurrentDay extends Day {
         return SignatureCurrentDay.newInstance(signatureCurrentDay);
     }
 
-    public static class SignatureCurrentDay extends Signature {
+    public static class SignatureCurrentDay extends Signature implements IWeatherStruct{
         private long sunriseDateTime;
         private long sunsetDateTime;
 
