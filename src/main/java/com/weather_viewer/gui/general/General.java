@@ -28,7 +28,8 @@ import static com.weather_viewer.gui.consts.Sign.*;
 public class General extends JFrame {
 
     //region Fields
-    private final Logger LOGGER = Logger.getLogger(General.class.getName());
+    private static final Logger LOGGER;
+    private static final Timer TIMER;
     //region Labels
     private JLabel locationLabel;
     private JLabel weatherLabel;
@@ -56,12 +57,15 @@ public class General extends JFrame {
     private JPanel forecastWorkweekPanel;
     private JPanel notificationPanel;
     //endregion
-    private JMenu fileMenu;
+    //region JMenuBar elements
     private JMenu settingsMenu;
-    private JMenuItem saveDataPerWeekMenuItem;
+    private JMenu fileMenu;
     private JMenuItem changeLocationMenuItem;
-    private JTabbedPane tabbedPanel;
     private JMenuItem saveDataPerDayMenuItem;
+    private JMenuItem saveDataPerWeekMenuItem;
+    private JMenuBar menuBar;
+    private JTabbedPane tabbedPanel;
+    //endregion
     private JCalendar jCalendar;
     private JSpinner spinnerHours;
     private JSpinner spinnerMinutes;
@@ -70,25 +74,22 @@ public class General extends JFrame {
     private JButton installNotificationButton;
     private JButton viewHistoryOfNotificationsButton;
     private JSpinner spinner1;
-    private JMenuBar menuBar;
     private JFrame jFrame = this;
-    private IWeatherConnector<CurrentDay> connectorCurrentDay;
-    private IWeatherConnector<Workweek> connectorWorkweek;
-    private final Timer timer;
+    private JScrollPane workweekJScroollPane;
+    private JTable workweekJTable;
     private int counterResponses;
     private CurrentDay currentDay;
     private Workweek workweek;
-    private JTable workweekJTable;
-    private JScrollPane workweekJScroollPane;
-    private StartPreview startPreview;
     //endregion
+
+    static {
+        LOGGER = Logger.getLogger(General.class.getName());
+        TIMER = new Timer();
+    }
 
     public General(StartPreview startPreview,
                    IWeatherConnector<CurrentDay> connectorCurrentDay,
                    IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
-        this.connectorCurrentDay = connectorCurrentDay;
-        this.connectorWorkweek = connectorWorkweek;
-        timer = new Timer();
 
 
         initTimer(connectorCurrentDay, connectorWorkweek, null, null, null);
@@ -99,11 +100,7 @@ public class General extends JFrame {
         addListeners();
         initJPanelForecast();
         initJCalendar();
-
-        setMinimumSize(rootPanel.getMinimumSize());
-        setLocationRelativeTo(null);
-        getContentPane().add(rootPanel);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        initJFrameSettings();
 
         LocalDateTime maxTime = LocalDateTime.now().plusMinutes(TimeUnit.MINUTES.toMillis(3));
         while ((workweek == null || currentDay == null) && LocalDateTime.now().isBefore(maxTime)) ;
@@ -116,6 +113,7 @@ public class General extends JFrame {
         } else exit();
     }
 
+
     private void addListeners() {
         changeLocationMenuItem.addActionListener(e -> new Settings(jFrame));
 
@@ -127,7 +125,7 @@ public class General extends JFrame {
             IWeatherConnector<CurrentDay> connectorCurrentDay, IWeatherConnector<Workweek> connectorWorkweek,
             City city, String valueAppId, Country country) {
 
-        timer.schedule(new TimerTask() {
+        TIMER.schedule(new TimerTask() {
             @Override
             public void run() {
                 currentDay = getIWeatherStruct(connectorCurrentDay, CurrentDay.class, city, valueAppId, country);
@@ -162,6 +160,15 @@ public class General extends JFrame {
         forecastWorkweekPanelForJTable.add(workweekJScroollPane);
     }
 
+    private void initJFrameSettings() {
+        setTitle("Weather viewer");
+        setIconImage(new ImageIcon(General.class.getResource("/images/partlycloudy.png")).getImage());
+        setMinimumSize(rootPanel.getMinimumSize());
+        setLocationRelativeTo(null);
+        getContentPane().add(rootPanel);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    }
+
     private void initJCalendar() {
         jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
     }
@@ -184,7 +191,7 @@ public class General extends JFrame {
     }
 
     private void exit() {
-        timer.cancel();
+        TIMER.cancel();
         this.dispose();
     }
 

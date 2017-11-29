@@ -19,7 +19,7 @@
         </constraints>
         <properties>
           <doubleBuffered value="true"/>
-          <icon value="gif/search.gif"/>
+          <icon value="gifs/search.gif"/>
           <text value=""/>
         </properties>
       </component>

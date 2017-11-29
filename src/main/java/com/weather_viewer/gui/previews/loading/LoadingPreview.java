@@ -66,7 +66,7 @@ public class LoadingPreview extends JFrame {
         rootPanel.setPreferredSize(new Dimension(256, 256));
         gifLabel = new JLabel();
         gifLabel.setDoubleBuffered(true);
-        gifLabel.setIcon(new ImageIcon(getClass().getResource("/gif/search.gif")));
+        gifLabel.setIcon(new ImageIcon(getClass().getResource("/gifs/search.gif")));
         gifLabel.setText("");
         rootPanel.add(gifLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }

@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 public class Main {
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-
     static {
         try {
             UIManager.setLookAndFeel(new WindowsLookAndFeel());
@@ -40,7 +39,7 @@ public class Main {
             IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
             IWeatherConnector<CurrentDay> connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
 
-            new General(new StartPreview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
+            General general = new General(new StartPreview(), connectorWeatherForDay, connectorForecastForTheWorkWeek);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
