@@ -4,6 +4,8 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.toedter.calendar.JCalendar;
+import com.weather_viewer.functional_layer.services.delayed_task.ITimerService;
+import com.weather_viewer.functional_layer.services.delayed_task.TimerService;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
@@ -17,7 +19,6 @@ import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +32,7 @@ public class General extends JFrame {
 
     //region Fields
     private static final Logger LOGGER;
-    private static final Timer TIMER;
+    private final ITimerService timerService;
     private final IWeatherConnector<CurrentDay> connectorCurrentDay;
     private final IWeatherConnector<Workweek> connectorWorkweek;
     //region Labels
@@ -84,21 +85,20 @@ public class General extends JFrame {
     private Workweek workweek;
     private AtomicReference<CurrentDay.SignatureCurrentDay> currentLocation;
     private List<IWeatherConnector> connectorsList;
-    private ExecutorService executor;
     //endregion
 
 
     static {
         LOGGER = Logger.getLogger(General.class.getName());
-        TIMER = new Timer();
     }
 
     private General(IWeatherConnector<CurrentDay> connectorCurrentDay,
                     IWeatherConnector<Workweek> connectorWorkweek) throws HeadlessException {
         this.connectorWorkweek = connectorWorkweek;
         this.connectorCurrentDay = connectorCurrentDay;
+        timerService = TimerService.build(this::updateAllData);
+
         connectorsList = new LinkedList<>(Arrays.asList(this.connectorCurrentDay, this.connectorWorkweek));
-        executor = Executors.newSingleThreadExecutor();
         currentLocation = new AtomicReference<>();
     }
 
@@ -106,7 +106,6 @@ public class General extends JFrame {
                    IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
         this(connectorCurrentDay, connectorWorkweek);
 
-        initTimer();
         initGeneral(startPreview);
     }
 
@@ -140,28 +139,9 @@ public class General extends JFrame {
             CurrentDay.SignatureCurrentDay signatureCurrentDay = currentLocation.get();
             connectorsList.forEach((a) -> a.setNewData(signatureCurrentDay.getCity(), signatureCurrentDay.getCountry()));
             currentLocation.set(null);
-            onUpdateAllData();
+
+            timerService.reRunService(this::updateAllData);
         }
-    }
-
-    private void onUpdateAllData() {
-        executor.execute(this::updateAllData);
-    }
-
-    private synchronized void updateAllData() {
-        currentDay = getIWeatherStruct(connectorCurrentDay, CurrentDay.class);
-        updateWeatherDayPanel(currentDay);
-        workweek = getIWeatherStruct(connectorWorkweek, Workweek.class);
-        updateJPanelForecast(workweek);
-    }
-
-    private void initTimer() {
-        TIMER.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                updateAllData();
-            }
-        }, 0, TimeUnit.SECONDS.toMillis(30));
     }
 
     private <T extends IWeatherStruct> T getIWeatherStruct(IWeatherConnector<T> iWeatherConnector, Class<T> clazz) {
@@ -199,6 +179,13 @@ public class General extends JFrame {
         jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
     }
 
+    private synchronized void updateAllData() {
+        currentDay = getIWeatherStruct(connectorCurrentDay, CurrentDay.class);
+        updateWeatherDayPanel(currentDay);
+        workweek = getIWeatherStruct(connectorWorkweek, Workweek.class);
+        updateJPanelForecast(workweek);
+    }
+
     private void updateJPanelForecast(Workweek workweek) {
         Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
         forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
@@ -217,7 +204,7 @@ public class General extends JFrame {
     }
 
     private void exit() {
-        TIMER.cancel();
+        timerService.dispose();
         this.dispose();
     }
 
