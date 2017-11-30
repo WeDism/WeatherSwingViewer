@@ -110,7 +110,16 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
 
     @Override
     public T requestAndGetWeatherStruct() throws Exception {
-        return gson.fromJson(request(), typeParameterClass);
+        T json = null;
+        JsonElement request = null;
+        try {
+            request = request();
+            json = gson.fromJson(request, typeParameterClass);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, request != null ? request().getAsString() : null, ex);
+            throw new Exception(ex);
+        }
+        return json;
     }
 
 }

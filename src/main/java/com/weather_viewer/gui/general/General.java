@@ -106,7 +106,7 @@ public class General extends JFrame {
                    IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
         this(connectorCurrentDay, connectorWorkweek);
 
-        initTimer(connectorCurrentDay, connectorWorkweek);
+        initTimer();
         initGeneral(startPreview);
     }
 
@@ -139,6 +139,7 @@ public class General extends JFrame {
         if (currentLocation.get() != null) {
             CurrentDay.SignatureCurrentDay signatureCurrentDay = currentLocation.get();
             connectorsList.forEach((a) -> a.setNewData(signatureCurrentDay.getCity(), signatureCurrentDay.getCountry()));
+            currentLocation.set(null);
             onUpdateAllData();
         }
     }
@@ -154,7 +155,7 @@ public class General extends JFrame {
         updateJPanelForecast(workweek);
     }
 
-    private void initTimer(IWeatherConnector<CurrentDay> connectorCurrentDay, IWeatherConnector<Workweek> connectorWorkweek) {
+    private void initTimer() {
         TIMER.schedule(new TimerTask() {
             @Override
             public void run() {
