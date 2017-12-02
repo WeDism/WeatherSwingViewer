@@ -3,6 +3,7 @@ package com.weather_viewer.gui.general;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.neovisionaries.i18n.CountryCode;
 import com.toedter.calendar.JCalendar;
 import com.weather_viewer.functional_layer.services.delayed_task.ITimerService;
 import com.weather_viewer.functional_layer.services.delayed_task.TimerService;
@@ -17,10 +18,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -103,7 +103,7 @@ public class General extends JFrame {
     }
 
     public General(StartPreview startPreview, IWeatherConnector<CurrentDay> connectorCurrentDay,
-                   IWeatherConnector<Workweek> connectorWorkweek) throws Exception {
+                   IWeatherConnector<Workweek> connectorWorkweek) throws HeadlessException {
         this(connectorCurrentDay, connectorWorkweek);
 
         initGeneral(startPreview);
@@ -148,7 +148,9 @@ public class General extends JFrame {
         T iWeatherStruct = null;
         try {
             iWeatherStruct = iWeatherConnector.requestAndGetWeatherStruct();
-            LOGGER.log(Level.INFO, "{0} connector response number is {1}", new Object[]{clazz.getSimpleName(), ++counterResponses});
+            LOGGER.log(Level.INFO, "{0} connector response number is {1} and current location the {2} in {3}",
+                    new Object[]{clazz.getSimpleName(), ++counterResponses, iWeatherStruct.getSignature().getCity(),
+                            CountryCode.getByCode(iWeatherStruct.getSignature().getCountry().toString()).getName()});
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, null, e);
             System.exit(-1);
@@ -206,25 +208,6 @@ public class General extends JFrame {
     private void exit() {
         timerService.dispose();
         this.dispose();
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     {
@@ -442,6 +425,25 @@ public class General extends JFrame {
         notificationPanel.add(sliderHours, new GridConstraints(0, 2, 6, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         jCalendar = new JCalendar();
         notificationPanel.add(jCalendar, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(300, 300), null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**

@@ -3,7 +3,7 @@ package com.weather_viewer.functional_layer.structs.weather;
 
 import java.util.Date;
 
-public class Day implements IWeatherStruct {
+public class Day {
     //region Data
     private long dateTimeNumber;
     private Date dateTime;

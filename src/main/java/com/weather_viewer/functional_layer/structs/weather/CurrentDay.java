@@ -5,7 +5,7 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Ci
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import org.jetbrains.annotations.NotNull;
 
-public class CurrentDay extends Day {
+public class CurrentDay extends Day implements IWeatherStruct{
     private SignatureCurrentDay signatureCurrentDay;
 
     public CurrentDay(long dateTime, int windDegrees, double windSpeed, String weather, String weatherDescription, int humidity, int pressure, int temp, int tempMax, int tempMin, SignatureCurrentDay signatureCurrentDay) {
@@ -31,6 +31,11 @@ public class CurrentDay extends Day {
         return SignatureCurrentDay.newInstance(signatureCurrentDay);
     }
 
+    @Override
+    public Signature getSignature() {
+        return getSignatureCurrentDay();
+    }
+
     public static class SignatureCurrentDay extends Signature implements IWeatherStruct{
         private long sunriseDateTime;
         private long sunsetDateTime;
@@ -47,6 +52,11 @@ public class CurrentDay extends Day {
 
         public long getSunsetDateTime() {
             return sunsetDateTime;
+        }
+
+        @Override
+        public Signature getSignature() {
+            return this;
         }
 
         @NotNull

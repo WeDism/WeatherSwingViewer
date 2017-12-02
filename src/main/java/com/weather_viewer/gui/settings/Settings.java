@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Settings extends JDialog {
-    private static final Logger LOGGER = Logger.getLogger(Settings.class.getName());
+    private static final Logger LOGGER;
     private final General parentFrame;
     private JPanel contentPane;
     private JButton buttonOK;
@@ -41,8 +41,13 @@ public class Settings extends JDialog {
     private ExecutorService executor;
     private AtomicReference<CurrentDay.SignatureCurrentDay> signatureCurrentDay;
 
+    static {
+        LOGGER = Logger.getLogger(Settings.class.getName());
+    }
+
     private Settings(General parentFrame) {
         this.parentFrame = parentFrame;
+        buttonOK.setEnabled(false);
         connector = ApiConnector.build(CurrentDay.SignatureCurrentDay.class);
         executor = Executors.newSingleThreadExecutor();
         addListeners();
@@ -123,10 +128,13 @@ public class Settings extends JDialog {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
-        if (signatureCurrentDayDerived != null)
+        if (signatureCurrentDayDerived != null) {
             cityIsFindCheckBox.setSelected(true);
-        else
+            buttonOK.setEnabled(true);
+        } else {
             cityIsFindCheckBox.setSelected(false);
+            buttonOK.setEnabled(false);
+        }
     }
 
     private void onOK() {
@@ -139,25 +147,6 @@ public class Settings extends JDialog {
     private void onCancel() {
         // add your code here if necessary
         dispose();
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     {
@@ -222,6 +211,25 @@ public class Settings extends JDialog {
         searchButton = new JButton();
         searchButton.setText("Search");
         panel3.add(searchButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**

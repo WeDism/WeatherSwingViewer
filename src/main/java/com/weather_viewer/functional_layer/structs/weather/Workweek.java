@@ -21,6 +21,11 @@ public class Workweek implements IWeatherStruct {
         return SignatureWorkDay.newInstance(signatureWorkDay);
     }
 
+    @Override
+    public Signature getSignature() {
+        return getSignatureWorkDay();
+    }
+
     public List<Day> getListForecasts() {
         return new ArrayList<>(listForecasts);
     }
