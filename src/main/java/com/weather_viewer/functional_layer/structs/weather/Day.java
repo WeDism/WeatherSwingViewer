@@ -21,7 +21,7 @@ public class Day {
     private String weather;
     private String weatherDescription;
     //endregion
-    //region com.weather_viewer.main.Main Characteristic
+    //region Characteristic
     private int humidity;
     private int pressure;
     private int temp;

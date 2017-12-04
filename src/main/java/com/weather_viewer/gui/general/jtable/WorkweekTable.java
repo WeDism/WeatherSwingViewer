@@ -1,4 +1,4 @@
-package com.weather_viewer.gui.general;
+package com.weather_viewer.gui.general.jtable;
 
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
@@ -42,7 +42,7 @@ public class WorkweekTable implements TableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        return Day.class;
     }
 
     @Override
@@ -53,11 +53,10 @@ public class WorkweekTable implements TableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Day day = workweek.getForecast(rowIndex);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd:'T'HH:mm:ss");
 
         switch (columnIndex) {
             case 0:
-                return formatter.format(day.getDateTime());
+                return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getDateTime());
             case 1:
                 return day.getWeather();
             case 2:
@@ -67,7 +66,11 @@ public class WorkweekTable implements TableModel {
         }
     }
 
-    @Override
+    public Day getValueAt(int rowIndex) {
+        return workweek.getForecast(rowIndex);
+    }
+
+        @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 
     }

@@ -4,7 +4,8 @@ import com.google.gson.JsonElement;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import org.junit.Test;
 
-import static helpers.TestData.*;
+import static helpers.TestData.RU_COUNTRY;
+import static helpers.TestData.SAMARA;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

@@ -11,4 +11,6 @@ public interface IWeatherConnector<T extends IWeatherStruct> {
     JsonElement request() throws Exception;
 
     T requestAndGetWeatherStruct() throws Exception;
+
+    Class<T> getType();
 }

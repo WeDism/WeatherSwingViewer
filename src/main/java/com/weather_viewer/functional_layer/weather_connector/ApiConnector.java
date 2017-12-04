@@ -22,8 +22,10 @@ import com.weather_viewer.functional_layer.weather_deserializers.WorkWeekDeseria
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
+import javax.xml.ws.ProtocolException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -91,6 +93,11 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
     }
 
     @Override
+    public Class<T> getType() {
+        return typeParameterClass;
+    }
+
+    @Override
     public JsonElement request() throws Exception {
         if (city == null || country == null) throw new NullPointerException("City or Country are null");
         String cityAndCountry = String.format("%s,%s", city, country);
@@ -104,7 +111,8 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
                         .param(ApiParams.UNITS, ApiParams.UNITS_METRIC_VALUE).send();
 
         httpClient.stop();
-
+        if (contentResponse.getStatus() != HttpStatus.OK_200)
+            throw new ProtocolException(String.format("Status is %s but not 200", contentResponse.getStatus()));
         return new JsonParser().parse(contentResponse.getContentAsString());
     }
 
@@ -116,7 +124,7 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
             request = request();
             json = gson.fromJson(request, typeParameterClass);
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, request != null ? request().getAsString() : null, ex);
+            LOGGER.log(Level.SEVERE, request != null ? request().toString() : null, ex);
             throw new Exception(ex);
         }
         return json;
