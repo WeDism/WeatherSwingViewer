@@ -21,6 +21,7 @@ import com.weather_viewer.functional_layer.weather_deserializers.SignatureCurren
 import com.weather_viewer.functional_layer.weather_deserializers.WorkWeekDeserializer;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -103,22 +104,22 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
         String cityAndCountry = String.format("%s,%s", city, country);
 
         httpClient.start();
-        ContentResponse contentResponse =
-                HttpRequestHelper.modifyRequest(httpClient
-                        .newRequest(UriScheme.http + Path.WEATHER_URL + WEATHER_PLAN_HASH_MAP.get(typeParameterClass))
-                        .method(HttpMethod.GET), ApiParams.Q, cityAndCountry)
-                        .param(ApiParams.APPID, APP_ID)
-                        .param(ApiParams.UNITS, ApiParams.UNITS_METRIC_VALUE).send();
+        Request request = HttpRequestHelper.modifyRequest(httpClient
+                .newRequest(UriScheme.http + Path.WEATHER_URL + WEATHER_PLAN_HASH_MAP.get(typeParameterClass))
+                .method(HttpMethod.GET), ApiParams.Q, cityAndCountry)
+                .param(ApiParams.APPID, APP_ID)
+                .param(ApiParams.UNITS, ApiParams.UNITS_METRIC_VALUE);
+        ContentResponse contentResponse = request.send();
 
         httpClient.stop();
         if (contentResponse.getStatus() != HttpStatus.OK_200)
-            throw new ProtocolException(String.format("Status is %s but not 200", contentResponse.getStatus()));
+            throw new ProtocolException(String.format("Status is %s but not 200 request app is %s", contentResponse.getStatus(), request.getQuery()));
         return new JsonParser().parse(contentResponse.getContentAsString());
     }
 
     @Override
     public T requestAndGetWeatherStruct() throws Exception {
-        T json = null;
+        T json;
         JsonElement request = null;
         try {
             request = request();

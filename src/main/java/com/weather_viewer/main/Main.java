@@ -50,6 +50,7 @@ public class Main {
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             Future<General> future = executorService.submit(() -> new General(new StartPreview(), new Settings()));
             WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, future.get());
+            executorService.shutdown();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

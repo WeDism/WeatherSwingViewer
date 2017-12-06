@@ -1,58 +1,81 @@
 package com.weather_viewer.gui.general;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.stubs.GeneralFormStart;
+import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.previews.start.StartPreview;
-import helpers.TestDataPaths;
+import com.weather_viewer.gui.settings.Settings;
+import org.jetbrains.annotations.Contract;
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
+import java.awt.*;
+import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static helpers.TestData.RU_COUNTRY;
 import static helpers.TestData.SAMARA;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GeneralFormSpyTest {
 
-    private final JsonElement jsonElementCurrentDay;
-    private final JsonElement jsonElementWorkweek;
+    private final static int TIMEOUT;
 
-    public GeneralFormSpyTest() throws Exception {
-        String jsonAsString = Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
-                .parallelStream().collect(Collectors.joining());
-        jsonElementCurrentDay = new JsonParser().parse(jsonAsString);
+    static class PreviewFormStub extends StartPreview {
+        private boolean isDispose;
 
-        jsonAsString = Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_WORKWEEK), StandardCharsets.UTF_8)
-                .parallelStream().collect(Collectors.joining());
+        private PreviewFormStub() throws HeadlessException {
+        }
 
-        jsonElementWorkweek = new JsonParser().parse(jsonAsString);
+        @Override
+        public void dispose() {
+            super.dispose();
+            isDispose = true;
+        }
 
+        @Contract(pure = true)
+        private boolean wasDisposed() {
+            return isDispose;
+        }
+    }
+
+
+    static {
+        TIMEOUT = 3;
     }
 
     @Test
     public void counterCallsPreview() throws Exception {
+        TimeUnit.SECONDS.sleep(5);
         IWeatherConnector<CurrentDay> connectorWeatherForDay
                 = spy(ApiConnector.build(SAMARA, RU_COUNTRY, CurrentDay.class));
         IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
                 = spy(ApiConnector.build(SAMARA, RU_COUNTRY, Workweek.class));
+        IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay
+                = Mockito.mock(ApiConnector.class);
 
-        StartPreview startPreview = new StartPreview();
-        when(connectorWeatherForDay.request()).thenReturn(jsonElementCurrentDay);
-        when(connectorForecastForTheWorkWeek.request()).thenReturn(jsonElementWorkweek);
-        //TODO
-//        General general = new General(startPreview, connectorWeatherForDay, connectorForecastForTheWorkWeek);
-//        general.resetScheduledExecutor();
+        final PreviewFormStub previewFormStub = new PreviewFormStub();
 
-//        verify(connectorWeatherForDay, times(1)).requestAndGetWeatherStruct();
-//        verify(connectorForecastForTheWorkWeek, times(1)).requestAndGetWeatherStruct();
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<GeneralFormStart> future = executorService.submit(() -> new GeneralFormStart(previewFormStub, new Settings()));
+        GeneralFormStart general = future.get();
+        WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, general);
+        executorService.shutdown();
+        LocalDateTime maxTime = LocalDateTime.now().plusSeconds(TIMEOUT);
+        while (!general.wasPerform() && LocalDateTime.now().isBefore(maxTime)) ;
+
+        verify(connectorWeatherForDay, times(1)).requestAndGetWeatherStruct();
+        verify(connectorForecastForTheWorkWeek, times(1)).requestAndGetWeatherStruct();
+
+        Assert.assertTrue("General form was not disposed", general.wasPerform());
+        Assert.assertTrue("StartPreview was not disposed", previewFormStub.wasDisposed());
 
     }
 }

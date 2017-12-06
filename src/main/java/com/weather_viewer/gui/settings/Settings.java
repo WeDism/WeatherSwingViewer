@@ -8,9 +8,6 @@ import com.weather_viewer.functional_layer.services.delayed_task.IWorkerService;
 import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
-import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
-import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
-import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.General;
 
 import javax.swing.*;
@@ -19,14 +16,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Settings extends JDialog implements EventSettingsListener {
+public class Settings extends JDialog implements SettingsFormDelegate {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;

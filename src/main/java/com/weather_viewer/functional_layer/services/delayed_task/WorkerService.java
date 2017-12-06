@@ -1,5 +1,6 @@
 package com.weather_viewer.functional_layer.services.delayed_task;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.neovisionaries.i18n.CountryCode;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
@@ -7,18 +8,17 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.gui.general.EventGeneralFormListener;
-import com.weather_viewer.gui.settings.EventSettingsListener;
+import com.weather_viewer.gui.general.GeneralFormDelegate;
 import com.weather_viewer.gui.settings.Settings;
+import com.weather_viewer.gui.settings.SettingsFormDelegate;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 public class WorkerService implements IWorkerService {
     private static final Logger LOGGER;
     private static final long PERIOD, INITIAL_DELAY;
+    private static final int EXECUTORS_NUMBER;
     private final IWeatherConnector<CurrentDay> connectorCurrentDay;
     private final IWeatherConnector<Workweek> connectorWorkweek;
     private final AtomicReference<CurrentDay> currentDay;
@@ -33,10 +34,11 @@ public class WorkerService implements IWorkerService {
     private final AtomicReference<CurrentDay.SignatureCurrentDay> currentLocation;
     private final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay;
     private final List<IWeatherConnector> connectorsList;
-    private final EventGeneralFormListener generalFormListener;
-    private final EventSettingsListener settingsListener;
+    private final GeneralFormDelegate generalFormListener;
+    private final SettingsFormDelegate settingsListener;
     private ScheduledExecutorService executorScheduled;
-    private ExecutorService executor;
+    private ExecutorService executorFinder;
+    private ExecutorService executorsLoaders;
     private long counterResponses;
     private static WorkerService workerService;
 
@@ -45,10 +47,12 @@ public class WorkerService implements IWorkerService {
         LOGGER = Logger.getLogger(WorkerService.class.getName());
         PERIOD = 30L;
         INITIAL_DELAY = 0L;
+        EXECUTORS_NUMBER = 2;
     }
 
     private WorkerService(IWeatherConnector<CurrentDay> connectorCurrentDay,
-                          IWeatherConnector<Workweek> connectorWorkweek, IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay, EventGeneralFormListener generalFormListener) {
+                          IWeatherConnector<Workweek> connectorWorkweek,
+                          IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay, @NotNull GeneralFormDelegate generalFormListener) {
         this.connectorCurrentDay = connectorCurrentDay;
         this.connectorWorkweek = connectorWorkweek;
         this.connectorSignatureDay = connectorSignatureDay;
@@ -60,8 +64,9 @@ public class WorkerService implements IWorkerService {
 
 
         connectorsList = new LinkedList<>(Arrays.asList(this.connectorCurrentDay, this.connectorWorkweek));
-        executorScheduled = Executors.newSingleThreadScheduledExecutor();
-        executor = Executors.newSingleThreadExecutor();
+        executorScheduled = getNewScheduledExecutor();
+        executorFinder = getNewExecutorFinder();
+        executorsLoaders = getExecutorsLoaders();
 
         executorScheduled.scheduleWithFixedDelay(() -> {
             getAndUpdate();
@@ -69,22 +74,49 @@ public class WorkerService implements IWorkerService {
         }, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
     }
 
+    @NotNull
+    private ExecutorService getExecutorsLoaders() {
+        return Executors.newFixedThreadPool(EXECUTORS_NUMBER, new ThreadFactoryBuilder().setNameFormat("ExecutorsLoaders-%d").build());
+    }
+
+    @NotNull
+    private ExecutorService getNewExecutorFinder() {
+        return Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("ExecutorFinder-%d").build());
+    }
+
+    @NotNull
+    private ScheduledExecutorService getNewScheduledExecutor() {
+        return Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ScheduledExecutor-%d").build());
+    }
+
     private void getAndUpdate() {
-        currentDay.set(getIWeatherStruct(connectorCurrentDay));
-        workweek.set(getIWeatherStruct(connectorWorkweek));
+        List<Future<IWeatherStruct>> futures;
+        List<IWeatherStruct> list = new LinkedList<>();
+        List<Callable<IWeatherStruct>> callableList = Arrays.asList(() -> getIWeatherStruct(connectorCurrentDay), () -> getIWeatherStruct(connectorWorkweek));
+        try {
+            futures = executorsLoaders.invokeAll(callableList);
+            for (Future<IWeatherStruct> future : futures) {
+                list.add(future.get());
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        currentDay.set(list.stream().filter(e -> e instanceof CurrentDay).map(e -> (CurrentDay) e).findAny().orElse(null));
+        workweek.set(list.stream().filter(e -> e instanceof Workweek).map(e -> (Workweek) e).findAny().orElse(null));
         generalFormListener.onUpdateForm();
     }
 
     public static IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
                                        IWeatherConnector<Workweek> connectorWorkweek,
                                        IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                                       EventGeneralFormListener generalFormListener) {
+                                       GeneralFormDelegate generalFormListener) {
         if (workerService != null)
             return workerService;
         workerService = new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
         return workerService;
     }
 
+    @Contract(pure = true)
     public static IWorkerService getInstance() throws NullPointerException {
         if (workerService != null)
             return workerService;
@@ -93,30 +125,39 @@ public class WorkerService implements IWorkerService {
 
     @Override
     public void resetExecutor() {
-        resetThread(executor);
-        executor = Executors.newSingleThreadScheduledExecutor();
+        disposeExecutorService(executorFinder);
+        executorFinder = getNewExecutorFinder();
     }
 
     @Override
     public void resetScheduledExecutor() {
-        resetThread(executorScheduled);
-        executorScheduled = Executors.newSingleThreadScheduledExecutor();
+        disposeExecutorService(executorScheduled);
+        executorScheduled = getNewScheduledExecutor();
 
     }
 
-    private void resetThread(ExecutorService executorService) {
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-        } finally {
-            if (!executorService.isTerminated())
-                LOGGER.log(Level.SEVERE, "Task is not terminated");
+    private void disposeExecutorService(@NotNull ExecutorService... executorServices) {
+        for (ExecutorService executorService : executorServices) {
+            try {
+                executorService.shutdown();
+                executorService.awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            } finally {
+                if (!executorService.isTerminated()) {
+                    LOGGER.log(Level.SEVERE, "Task is not terminated");
+                }
 
-            executorService.shutdownNow();
-            LOGGER.log(Level.SEVERE, "Shutdown finished");
+                executorService.shutdownNow();
+                LOGGER.log(Level.SEVERE, "Shutdown finished");
+            }
         }
+    }
+
+    @Override
+    public void dispose() {
+        disposeExecutorService(executorFinder, executorScheduled, executorsLoaders);
+        workerService = null;
     }
 
     @Override
@@ -130,7 +171,7 @@ public class WorkerService implements IWorkerService {
         }
         connectorSignatureDay.setNewData(city, country);
         settingsListener.onFindLocation(false);
-        executor.execute(() -> {
+        executorFinder.execute(() -> {
             currentLocation.set(getIWeatherStruct(connectorSignatureDay));
             if (currentLocation.get() != null) settingsListener.onFindLocation(true);
             else settingsListener.onFindLocation(false);

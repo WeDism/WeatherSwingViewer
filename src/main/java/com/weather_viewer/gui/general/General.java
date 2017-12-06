@@ -4,27 +4,27 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.toedter.calendar.JCalendar;
+import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
-import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
-import com.weather_viewer.gui.general.jtable.DayView;
+import com.weather_viewer.gui.general.jtable.DoubleClickMouseAdapter;
 import com.weather_viewer.gui.general.jtable.WorkweekTable;
 import com.weather_viewer.gui.previews.start.StartPreview;
-import com.weather_viewer.gui.settings.EventSettingsListener;
 import com.weather_viewer.gui.settings.Settings;
+import com.weather_viewer.gui.settings.SettingsFormDelegate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import static com.weather_viewer.gui.consts.Sign.*;
 
-public class General extends JFrame implements EventGeneralFormListener {
+public class General extends JFrame implements GeneralFormDelegate {
 
     //region Fields
     //region consts
@@ -78,6 +78,7 @@ public class General extends JFrame implements EventGeneralFormListener {
     private JSpinner spinner1;
     private JTable workweekJTable;
     private final Settings settings;
+    private final StartPreview startPreview;
     //endregion
 
 
@@ -85,17 +86,12 @@ public class General extends JFrame implements EventGeneralFormListener {
         LOGGER = Logger.getLogger(General.class.getName());
     }
 
-    private StartPreview startPreview;
-
-    private General(Settings settings) throws HeadlessException {
+    public General(StartPreview startPreview, Settings settings) throws HeadlessException {
         this.settings = settings;
+        this.startPreview = startPreview;
         currentDay = new AtomicReference<>();
         workweek = new AtomicReference<>();
-    }
 
-    public General(StartPreview startPreview, Settings settings) throws HeadlessException {
-        this(settings);
-        this.startPreview = startPreview;
         initGeneral();
     }
 
@@ -117,24 +113,29 @@ public class General extends JFrame implements EventGeneralFormListener {
             settings.resetUI();
         });
 
-        rootPanel.registerKeyboardAction(e -> System.exit(0)
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+
+
+        rootPanel.registerKeyboardAction(e -> dispose()
                 , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        settings.dispose();
+        WorkerService.getInstance().dispose();
     }
 
     private void initJPanelForecast() {
         workweekJTable = new JTable();
         workweekJTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        General general = this;
-        workweekJTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    super.mouseClicked(e);
-                    Day day = ((WorkweekTable) workweekJTable.getModel()).getValueAt(workweekJTable.rowAtPoint(e.getPoint()));
-                    new DayView(general, workweek.get(), day);
-                }
-            }
-        });
+        workweekJTable.addMouseListener(new DoubleClickMouseAdapter(workweekJTable, this, workweek));
         workweekJTable.setShowVerticalLines(false);
         workweekJTable.setFont(new Font("Arial", Font.PLAIN, 22));
         workweekJTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
@@ -200,7 +201,7 @@ public class General extends JFrame implements EventGeneralFormListener {
     }
 
     @Override
-    public EventSettingsListener getSettingsForm() {
+    public SettingsFormDelegate getSettingsForm() {
         return settings;
     }
 
