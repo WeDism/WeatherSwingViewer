@@ -1,8 +1,8 @@
 # This is a free weather viewer application
 ![Weather Viewer](/src/main/resources/images/PartlyCloudy.png)
 
-##For run this app you have to next steps
-###Steps to windows system
+## For run this app you have to next steps
+### Steps to windows system
 1. Download and install maven 3
 1. Open environment variable
 1. And add into variable path string with the path to maven
