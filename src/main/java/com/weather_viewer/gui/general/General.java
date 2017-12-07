@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -113,12 +111,7 @@ public class General extends JFrame implements GeneralFormDelegate {
             settings.resetUI();
         });
 
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                System.exit(0);
-            }
-        });
+
 
 
         rootPanel.registerKeyboardAction(e -> dispose()

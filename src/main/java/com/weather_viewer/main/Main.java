@@ -14,6 +14,8 @@ import com.weather_viewer.gui.settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,7 +51,15 @@ public class Main {
 
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             Future<General> future = executorService.submit(() -> new General(new StartPreview(), new Settings()));
-            WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, future.get());
+            General general = future.get();
+            //Add this Listener because it is should to run all tests
+            general.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, general);
             executorService.shutdown();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
