@@ -9,5 +9,5 @@
 1. And add into variable path string with the path to maven and jdk 8
 1. Download and extract files from zip
 1. Into folder root project you have to run build.bat file
-1. Will be created WeatherSwingViewer-1.0-SNAPSHOT-jar-with-dependencies.jar into folder with title target
-1. Run WeatherSwingViewer-1.0-SNAPSHOT-jar-with-dependencies.jar
+1. Will be created WeatherSwingViewer-1.0-full.jar into folder with title target
+1. Run WeatherSwingViewer-1.0-full.jar

@@ -18,6 +18,7 @@ import com.weather_viewer.functional_layer.weather_deserializers.WorkWeekDeseria
 import com.weather_viewer.gui.previews.start.StartPreview;
 import com.weather_viewer.gui.settings.Settings;
 import helpers.TestDataPaths;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -30,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-public class ApiConnectorWeatherForDayMockTest {
+public class ApiConnectorWeatherForDayMockAndStubTest {
     private final static int TIMEOUT;
 
     static {
@@ -71,6 +72,8 @@ public class ApiConnectorWeatherForDayMockTest {
 
         LocalDateTime maxTime = LocalDateTime.now().plusSeconds(TIMEOUT);
         while (!general.wasPerform() && LocalDateTime.now().isBefore(maxTime)) ;
+
+        Assert.assertTrue("General form was not disposed", general.wasPerform());
 
         Mockito.verify(connectorWeatherForDay, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
         Mockito.verify(connectorForecastForTheWorkWeek, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
