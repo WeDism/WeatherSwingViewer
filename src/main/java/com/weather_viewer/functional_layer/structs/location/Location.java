@@ -15,18 +15,18 @@ public abstract class Location {
 
     @Override
     public String toString() {
-        return location;
+        return this.location;
     }
 
     @Override
     public boolean equals(Object o) {
-        return this == o || o instanceof Country && location.equals(((Location) o).location);
+        return this == o || o instanceof Country && this.location.equals(((Location) o).location);
 
     }
 
     @Override
     public int hashCode() {
-        return location.hashCode();
+        return this.location.hashCode();
     }
 
     @Nullable

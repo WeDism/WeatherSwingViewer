@@ -34,46 +34,46 @@ public class Settings extends JDialog implements SettingsFormDelegate {
     private boolean isAnimate = false;
 
     public Settings() {
-        buttonOK.setEnabled(false);
-        addListeners();
-        comboBoxCountry.setModel(
+        this.buttonOK.setEnabled(false);
+        this.addListeners();
+        this.comboBoxCountry.setModel(
                 new DefaultComboBoxModel<>(Stream.of(CountryCode.values())
                         .map(map -> map.toLocale().getCountry())
                         .collect(Collectors.toList())
                         .toArray(new String[CountryCode.values().length])));
 
-        initJDialog();
+        this.initJDialog();
     }
 
     private void initJDialog() {
-        setTitle("Choose location");
-        setIconImage(new ImageIcon(General.class.getResource("/images/PartlyCloudy.png")).getImage());
-        setContentPane(contentPane);
-        setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
-        setResizable(false);
-        setVisible(false);
-        pack();
+        this.setTitle("Choose location");
+        this.setIconImage(new ImageIcon(General.class.getResource("/images/PartlyCloudy.png")).getImage());
+        this.setContentPane(this.contentPane);
+        this.setModal(true);
+        this.getRootPane().setDefaultButton(this.buttonOK);
+        this.setResizable(false);
+        this.setVisible(false);
+        this.pack();
     }
 
     private void addListeners() {
-        buttonOK.addActionListener(e -> onOK());
+        this.buttonOK.addActionListener(e -> this.onOK());
 
-        buttonCancel.addActionListener(e -> onCancel());
+        this.buttonCancel.addActionListener(e -> this.onCancel());
 
-        searchButton.addActionListener(e -> readDataFromForm());
+        this.searchButton.addActionListener(e -> this.readDataFromForm());
 
         // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        cityTextField.addKeyListener(new KeyAdapter() {
+        this.contentPane.registerKeyboardAction(e -> this.onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        this.cityTextField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -86,37 +86,37 @@ public class Settings extends JDialog implements SettingsFormDelegate {
 
     private void readDataFromForm() {
         WorkerService.getInstance().onSearch(
-                new Country(String.valueOf(comboBoxCountry.getSelectedItem()).toLowerCase()),
-                new City(cityTextField.getText().trim().toLowerCase()));
+                new Country(String.valueOf(this.comboBoxCountry.getSelectedItem()).toLowerCase()),
+                new City(this.cityTextField.getText().trim().toLowerCase()));
     }
 
     public void resetUI() {
-        setVisible(true);
-        cityIsFindCheckBox.setSelected(false);
-        buttonOK.setEnabled(false);
+        this.setVisible(true);
+        this.cityIsFindCheckBox.setSelected(false);
+        this.buttonOK.setEnabled(false);
     }
 
     @Override
     public void onFindLocation(boolean find) {
-        cityIsFindCheckBox.setSelected(find);
-        buttonOK.setEnabled(find);
-        cityTextField.setEnabled(find);
-        isAnimate = !isAnimate;
-        loadingLabel.setVisible(isAnimate);
+        this.cityIsFindCheckBox.setSelected(find);
+        this.buttonOK.setEnabled(find);
+        this.cityTextField.setEnabled(find);
+        this.isAnimate = !isAnimate;
+        this.loadingLabel.setVisible(isAnimate);
     }
 
     @Override
     public void onOK() {
-        if (cityIsFindCheckBox.isSelected()) {
+        if (this.cityIsFindCheckBox.isSelected()) {
             IWorkerService instance = WorkerService.getInstance();
             instance.onChangeLocationData();
-            setVisible(false);
+            this.setVisible(false);
         }
     }
 
     private void onCancel() {
         WorkerService.getInstance().resetExecutor();
-        setVisible(false);
+        this.setVisible(false);
     }
 
     {
@@ -193,25 +193,6 @@ public class Settings extends JDialog implements SettingsFormDelegate {
         loadingLabel.setText("");
         loadingLabel.setVisible(false);
         loadingPanel.add(loadingLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**

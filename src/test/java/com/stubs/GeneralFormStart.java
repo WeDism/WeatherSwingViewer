@@ -18,7 +18,7 @@ public class GeneralFormStart extends General {
     public void onPerform() {
         super.onPerform();
         isPerform = true;
-        dispose();
+        super.dispose();
     }
 
     @Contract(pure = true)

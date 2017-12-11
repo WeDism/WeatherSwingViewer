@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -36,11 +38,11 @@ public class General extends JFrame implements GeneralFormDelegate {
     private JLabel cityAndCountryLabel;
     private JLabel pictureLabel;
     private JLabel tempLabel;
-    private JLabel humiditylabel;
+    private JLabel humidityLabel;
     private JLabel pressureLabel;
     private JLabel valueTempLabel;
-    private JLabel valueHumiditylabel;
-    private JLabel valuePressurelabel;
+    private JLabel valueHumidityLabel;
+    private JLabel valuePressureLabel;
     private JLabel selectedDatestempLabel;
     private JLabel datestempLabel;
     private JLabel wantedTemperatureLabel;
@@ -84,118 +86,125 @@ public class General extends JFrame implements GeneralFormDelegate {
         LOGGER = Logger.getLogger(General.class.getName());
     }
 
+    {
+        this.currentDay = new AtomicReference<>();
+        this.workweek = new AtomicReference<>();
+    }
+
     public General(StartPreview startPreview, Settings settings) throws HeadlessException {
         this.settings = settings;
         this.startPreview = startPreview;
-        currentDay = new AtomicReference<>();
-        workweek = new AtomicReference<>();
 
-        initGeneral();
+        this.initGeneral();
     }
 
     private void initGeneral() {
-        addListeners();
-        initJPanelForecast();
-        initJCalendar();
-        initJFrameSettings();
+        this.addListeners();
+        this.initJPanelForecast();
+        this.initJCalendar();
+        this.initJFrameSettings();
 
-        pack();
-        setResizable(false);
-        setVisible(false);
+        this.pack();
+        this.setResizable(false);
+        this.setVisible(false);
     }
 
 
     private void addListeners() {
-        changeLocationMenuItem.addActionListener(e -> {
+        this.changeLocationMenuItem.addActionListener(e -> {
             settings.setLocationRelativeTo(this);
             settings.resetUI();
         });
 
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                System.exit(0);
+            }
+        });
 
-
-
-        rootPanel.registerKeyboardAction(e -> dispose()
+        this.rootPanel.registerKeyboardAction(e -> dispose()
                 , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        settings.dispose();
+        this.settings.dispose();
         WorkerService.getInstance().dispose();
     }
 
     private void initJPanelForecast() {
-        workweekJTable = new JTable();
-        workweekJTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        workweekJTable.addMouseListener(new DoubleClickMouseAdapter(workweekJTable, this, workweek));
-        workweekJTable.setShowVerticalLines(false);
-        workweekJTable.setFont(new Font("Arial", Font.PLAIN, 22));
-        workweekJTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-        workweekJTable.setRowHeight(workweekJTable.getRowHeight() + (workweekJTable.getRowHeight() / 2));
-        JScrollPane workweekJSchoolPane = new JScrollPane(workweekJTable);
-        forecastWorkweekPanelForJTable.add(workweekJSchoolPane);
+        this.workweekJTable = new JTable();
+        this.workweekJTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.workweekJTable.addMouseListener(new DoubleClickMouseAdapter(this.workweekJTable, this, this.workweek));
+        this.workweekJTable.setShowVerticalLines(false);
+        this.workweekJTable.setFont(new Font("Arial", Font.PLAIN, 22));
+        this.workweekJTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        this.workweekJTable.setRowHeight(this.workweekJTable.getRowHeight() + (this.workweekJTable.getRowHeight() / 2));
+        JScrollPane workweekJSchoolPane = new JScrollPane(this.workweekJTable);
+        this.forecastWorkweekPanelForJTable.add(workweekJSchoolPane);
     }
 
     private void initJFrameSettings() {
-        setTitle("Weather viewer");
-        setIconImage(startPreview.getIconImage());
-        setMinimumSize(rootPanel.getMinimumSize());
-        setLocationRelativeTo(null);
-        getContentPane().add(rootPanel);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.setTitle("Weather viewer");
+        this.setIconImage(this.startPreview.getIconImage());
+        this.setMinimumSize(this.rootPanel.getMinimumSize());
+        this.setLocationRelativeTo(null);
+        this.getContentPane().add(this.rootPanel);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void initJCalendar() {
-        jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
+        this.jCalendar.setFont(new Font("Arial", Font.BOLD, 18));
     }
 
     @Override
     public void onUpdateForm() {
-        if (currentDay.get() != null && workweek != null) {
-            updateWeatherDayPanel(currentDay.get());
-            updateJPanelForecast(workweek.get());
+        if (this.currentDay.get() != null && this.workweek != null) {
+            this.updateWeatherDayPanel(this.currentDay.get());
+            this.updateJPanelForecast(this.workweek.get());
         }
     }
 
     private void updateJPanelForecast(@NotNull Workweek workweek) {
         Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
-        forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
-        workweekJTable.setModel(new WorkweekTable(workweek));
-        workweekJTable.getColumnModel().getColumn(0)
-                .setMinWidth(String.valueOf(workweekJTable.getModel().getValueAt(0, 0)).length() + 100);
+        this.forecastLocationValueLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
+        this.workweekJTable.setModel(new WorkweekTable(workweek));
+        this.workweekJTable.getColumnModel().getColumn(0)
+                .setMinWidth(String.valueOf(this.workweekJTable.getModel().getValueAt(0, 0)).length() + 100);
     }
 
     private void updateWeatherDayPanel(@NotNull CurrentDay currentDay) {
         CurrentDay.SignatureCurrentDay signatureCurrentDay = currentDay.getSignatureCurrentDay();
-        cityAndCountryLabel.setText(String.format("%s, %s", signatureCurrentDay.getCity(), signatureCurrentDay.getCountry()));
-        valueTempLabel.setText(currentDay.getTemp() + CELSIUS);
-        valueHumiditylabel.setText(currentDay.getHumidity() + HUMIDITY);
-        valuePressurelabel.setText(String.format("%s, %s", currentDay.getPressure(), PRESSURE));
-        valueWeatherLabel.setText(String.format("%s (%s)", currentDay.getWeather(), currentDay.getWeatherDescription()));
+        this.cityAndCountryLabel.setText(String.format("%s, %s", signatureCurrentDay.getCity(), signatureCurrentDay.getCountry()));
+        this.valueTempLabel.setText(currentDay.getTemp() + CELSIUS);
+        this.valueHumidityLabel.setText(currentDay.getHumidity() + HUMIDITY);
+        this.valuePressureLabel.setText(String.format("%s, %s", currentDay.getPressure(), PRESSURE));
+        this.valueWeatherLabel.setText(String.format("%s (%s)", currentDay.getWeather(), currentDay.getWeatherDescription()));
     }
 
     @Override
     public void onPerform() {
-        if (!isVisible()) {
-            setVisible(true);
-            startPreview.dispose();
+        if (!this.isVisible()) {
+            this.setVisible(true);
+            this.startPreview.dispose();
         }
     }
 
     @Override
     public AtomicReference<CurrentDay> getCurrentDay() {
-        return currentDay;
+        return this.currentDay;
     }
 
     @Override
     public AtomicReference<Workweek> getWorkweek() {
-        return workweek;
+        return this.workweek;
     }
 
     @Override
     public SettingsFormDelegate getSettingsForm() {
-        return settings;
+        return this.settings;
     }
 
     {
@@ -283,11 +292,11 @@ public class General extends JFrame implements GeneralFormDelegate {
         pictureLabel = new JLabel();
         pictureLabel.setText("Picture");
         weatherDayPanel.add(pictureLabel, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        humiditylabel = new JLabel();
-        Font humiditylabelFont = this.$$$getFont$$$("Arial", Font.BOLD, 28, humiditylabel.getFont());
-        if (humiditylabelFont != null) humiditylabel.setFont(humiditylabelFont);
-        humiditylabel.setText("Humidity");
-        weatherDayPanel.add(humiditylabel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        humidityLabel = new JLabel();
+        Font humidityLabelFont = this.$$$getFont$$$("Arial", Font.BOLD, 28, humidityLabel.getFont());
+        if (humidityLabelFont != null) humidityLabel.setFont(humidityLabelFont);
+        humidityLabel.setText("Humidity");
+        weatherDayPanel.add(humidityLabel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
         weatherDayPanel.add(spacer3, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         pressureLabel = new JLabel();
@@ -297,16 +306,16 @@ public class General extends JFrame implements GeneralFormDelegate {
         weatherDayPanel.add(pressureLabel, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer4 = new Spacer();
         weatherDayPanel.add(spacer4, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        valuePressurelabel = new JLabel();
-        Font valuePressurelabelFont = this.$$$getFont$$$("Arial", -1, 28, valuePressurelabel.getFont());
-        if (valuePressurelabelFont != null) valuePressurelabel.setFont(valuePressurelabelFont);
-        valuePressurelabel.setText("value");
-        weatherDayPanel.add(valuePressurelabel, new GridConstraints(8, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        valueHumiditylabel = new JLabel();
-        Font valueHumiditylabelFont = this.$$$getFont$$$("Arial", -1, 28, valueHumiditylabel.getFont());
-        if (valueHumiditylabelFont != null) valueHumiditylabel.setFont(valueHumiditylabelFont);
-        valueHumiditylabel.setText("value");
-        weatherDayPanel.add(valueHumiditylabel, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        valuePressureLabel = new JLabel();
+        Font valuePressureLabelFont = this.$$$getFont$$$("Arial", -1, 28, valuePressureLabel.getFont());
+        if (valuePressureLabelFont != null) valuePressureLabel.setFont(valuePressureLabelFont);
+        valuePressureLabel.setText("value");
+        weatherDayPanel.add(valuePressureLabel, new GridConstraints(8, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        valueHumidityLabel = new JLabel();
+        Font valueHumidityLabelFont = this.$$$getFont$$$("Arial", -1, 28, valueHumidityLabel.getFont());
+        if (valueHumidityLabelFont != null) valueHumidityLabel.setFont(valueHumidityLabelFont);
+        valueHumidityLabel.setText("value");
+        weatherDayPanel.add(valueHumidityLabel, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         valueTempLabel = new JLabel();
         Font valueTempLabelFont = this.$$$getFont$$$("Arial", -1, 28, valueTempLabel.getFont());
         if (valueTempLabelFont != null) valueTempLabel.setFont(valueTempLabelFont);

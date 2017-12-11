@@ -9,19 +9,18 @@ import java.awt.*;
 
 public class StartPreview extends JFrame {
     private JPanel rootPanel;
-    private JLabel gifLabel;
 
     public StartPreview() {
-        setLocationRelativeTo(null);
-        getContentPane().add(rootPanel);
-        setUndecorated(true);
+        this.setLocationRelativeTo(null);
+        this.getContentPane().add(this.rootPanel);
+        this.setUndecorated(true);
 
-        setBackground(new Color(0, 0, 0, 0));
-        setIconImage(new ImageIcon(General.class.getResource("/images/PartlyCloudy.png")).getImage());
+        this.setBackground(new Color(0, 0, 0, 0));
+        this.setIconImage(new ImageIcon(General.class.getResource("/images/PartlyCloudy.png")).getImage());
 
-        pack();
-        setResizable(false);
-        setVisible(true);
+        this.pack();
+        this.setResizable(false);
+        this.setVisible(true);
     }
 
     {
@@ -45,11 +44,30 @@ public class StartPreview extends JFrame {
         rootPanel.setName("");
         rootPanel.setOpaque(false);
         rootPanel.setPreferredSize(new Dimension(256, 256));
-        gifLabel = new JLabel();
-        gifLabel.setDoubleBuffered(true);
-        gifLabel.setIcon(new ImageIcon(getClass().getResource("/gifs/loading.gif")));
-        gifLabel.setText("");
-        rootPanel.add(gifLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setDoubleBuffered(true);
+        label1.setIcon(new ImageIcon(getClass().getResource("/gifs/loading.gif")));
+        label1.setText("");
+        rootPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**

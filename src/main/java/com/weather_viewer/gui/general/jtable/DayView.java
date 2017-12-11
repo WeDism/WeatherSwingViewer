@@ -28,31 +28,31 @@ public class DayView extends JDialog {
     private JLabel timeLabel;
 
     public DayView(General general, @NotNull Workweek workweek, @NotNull Day day) {
-        setTitle("Forecast per " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getDateTime()));
-        contentPane.registerKeyboardAction(e -> dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        this.setTitle("Forecast per " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getDateTime()));
+        this.contentPane.registerKeyboardAction(e -> dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        setMinimumSize(new Dimension(500, 400));
-        setLocationRelativeTo(general);
-        setData(workweek, day);
-        setIconImage(general.getIconImage());
-        setContentPane(contentPane);
-        setModal(true);
-        setResizable(false);
-        setVisible(true);
-        pack();
+        this.setMinimumSize(new Dimension(500, 400));
+        this.setLocationRelativeTo(general);
+        this.setData(workweek, day);
+        this.setIconImage(general.getIconImage());
+        this.setContentPane(this.contentPane);
+        this.setModal(true);
+        this.setResizable(false);
+        this.setVisible(true);
+        this.pack();
     }
 
     private void setData(@NotNull Workweek workweek, @NotNull Day day) {
         Workweek.SignatureWorkDay signatureWorkDay = workweek.getSignatureWorkDay();
-        locationLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
-        dateLabel.setText(new SimpleDateFormat("yyyy-MM-dd").format(day.getDateTime()));
-        timeLabel.setText(new SimpleDateFormat("HH:mm:ss").format(day.getDateTime()));
-        weatherLabel.setText(String.format("%s (%s)", day.getWeather(), day.getWeatherDescription()));
-        humidityLabel.setText(day.getHumidity() + HUMIDITY);
-        temperatureLabel.setText(day.getTemp() + CELSIUS);
-        pressureLabel.setText(String.format("%s, %s", day.getPressure(), PRESSURE));
-        windSpeedLabel.setText(String.format("%s, %s", day.getWindSpeed(), WIND_SPEED));
-        windDegreesLabel.setText(day.getWindDegrees() + DEGREES);
+        this.locationLabel.setText(String.format("%s, %s", signatureWorkDay.getCity(), signatureWorkDay.getCountry()));
+        this.dateLabel.setText(new SimpleDateFormat("yyyy-MM-dd").format(day.getDateTime()));
+        this.timeLabel.setText(new SimpleDateFormat("HH:mm:ss").format(day.getDateTime()));
+        this.weatherLabel.setText(String.format("%s (%s)", day.getWeather(), day.getWeatherDescription()));
+        this.humidityLabel.setText(day.getHumidity() + HUMIDITY);
+        this.temperatureLabel.setText(day.getTemp() + CELSIUS);
+        this.pressureLabel.setText(String.format("%s, %s", day.getPressure(), PRESSURE));
+        this.windSpeedLabel.setText(String.format("%s, %s", day.getWindSpeed(), WIND_SPEED));
+        this.windDegreesLabel.setText(day.getWindDegrees() + DEGREES);
     }
 
     {

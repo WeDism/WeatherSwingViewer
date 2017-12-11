@@ -13,10 +13,10 @@ public abstract class Signature {
     }
 
     public City getCity() {
-        return city;
+        return this.city;
     }
 
     public Country getCountry() {
-        return country;
+        return this.country;
     }
 }

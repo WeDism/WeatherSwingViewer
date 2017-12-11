@@ -31,7 +31,7 @@ public class Day {
 
     public Day(long dateTimeNumber, int windDegrees, double windSpeed, String weather, String weatherDescription, int humidity, int pressure, int temp, int tempMax, int tempMin) {
         this.dateTimeNumber = dateTimeNumber;
-        dateTime = new Date(dateTimeNumber);
+        this.dateTime = new Date(dateTimeNumber);
         this.windDegrees = windDegrees;
         this.windSpeed = windSpeed;
         this.weather = weather;
@@ -44,43 +44,43 @@ public class Day {
     }
 
     public long getDateTimeNumber() {
-        return dateTimeNumber;
+        return this.dateTimeNumber;
     }
 
     public int getWindDegrees() {
-        return windDegrees;
+        return this.windDegrees;
     }
 
     public double getWindSpeed() {
-        return windSpeed;
+        return this.windSpeed;
     }
 
     public String getWeather() {
-        return weather;
+        return this.weather;
     }
 
     public String getWeatherDescription() {
-        return weatherDescription;
+        return this.weatherDescription;
     }
 
     public int getHumidity() {
-        return humidity;
+        return this.humidity;
     }
 
     public int getPressure() {
-        return pressure;
+        return this.pressure;
     }
 
     public int getTemp() {
-        return temp;
+        return this.temp;
     }
 
     public int getTempMax() {
-        return tempMax;
+        return this.tempMax;
     }
 
     public int getTempMin() {
-        return tempMin;
+        return this.tempMin;
     }
 
 }

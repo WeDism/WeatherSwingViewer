@@ -39,11 +39,11 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
     private static final Logger LOGGER = Logger.getLogger(ApiConnector.class.getName());
     private static final String APP_ID;
     private static final Map<Type, WeatherPlan> WEATHER_PLAN_HASH_MAP = new HashMap<>();
-    final private HttpClient httpClient;
-    final private Gson gson;
+    private final HttpClient httpClient;
+    private final Gson gson;
+    private final Class<T> typeParameterClass;
     private City city;
     private Country country;
-    private Class<T> typeParameterClass;
 
     static {
         WEATHER_PLAN_HASH_MAP.put(CurrentDay.class, WeatherPlan.Weather);
@@ -60,18 +60,20 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
 
     }
 
-    private ApiConnector(Class<T> typeParameterClass) {
-        this.typeParameterClass = typeParameterClass;
-
-        httpClient = new HttpClient();
-        httpClient.setFollowRedirects(false);
+    {
+        this.httpClient = new HttpClient();
+        this.httpClient.setFollowRedirects(false);
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(CurrentDay.SignatureCurrentDay.class, new SignatureCurrentDayDeserializer());
         gsonBuilder.registerTypeAdapter(CurrentDay.class, new CurrentDayDeserializer());
         gsonBuilder.registerTypeAdapter(Workweek.class, new WorkWeekDeserializer());
         gsonBuilder.registerTypeAdapter(Day.class, new DayDeserializer());
-        gson = gsonBuilder.create();
+        this.gson = gsonBuilder.create();
+    }
+
+    private ApiConnector(Class<T> typeParameterClass) {
+        this.typeParameterClass = typeParameterClass;
     }
 
     private ApiConnector(City city, Country country, Class<T> typeParameterClass) {
@@ -95,23 +97,23 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
 
     @Override
     public Class<T> getType() {
-        return typeParameterClass;
+        return this.typeParameterClass;
     }
 
     @Override
     public JsonElement request() throws Exception {
-        if (city == null || country == null) throw new NullPointerException("City or Country are null");
-        String cityAndCountry = String.format("%s,%s", city, country);
+        if (this.city == null || this.country == null) throw new NullPointerException("City or Country are null");
+        String cityAndCountry = String.format("%s,%s", this.city, this.country);
 
-        httpClient.start();
+        this.httpClient.start();
         Request request = HttpRequestHelper.modifyRequest(httpClient
-                .newRequest(UriScheme.http + Path.WEATHER_URL + WEATHER_PLAN_HASH_MAP.get(typeParameterClass))
+                .newRequest(UriScheme.http + Path.WEATHER_URL + WEATHER_PLAN_HASH_MAP.get(this.typeParameterClass))
                 .method(HttpMethod.GET), ApiParams.Q, cityAndCountry)
-                .param(ApiParams.APPID, APP_ID)
+                .param(ApiParams.APP_ID, APP_ID)
                 .param(ApiParams.UNITS, ApiParams.UNITS_METRIC_VALUE);
         ContentResponse contentResponse = request.send();
 
-        httpClient.stop();
+        this.httpClient.stop();
         if (contentResponse.getStatus() != HttpStatus.OK_200)
             throw new ProtocolException(String.format("Status is %s but not 200 request app is %s", contentResponse.getStatus(), request.getQuery()));
         return new JsonParser().parse(contentResponse.getContentAsString());
@@ -123,7 +125,7 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
         JsonElement request = null;
         try {
             request = request();
-            json = gson.fromJson(request, typeParameterClass);
+            json = this.gson.fromJson(request, typeParameterClass);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, request != null ? request().toString() : null, ex);
             throw new Exception(ex);

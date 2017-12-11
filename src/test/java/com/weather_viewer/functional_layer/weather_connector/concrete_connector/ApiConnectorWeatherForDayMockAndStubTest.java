@@ -4,32 +4,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.stubs.GeneralFormStart;
+import com.weather_viewer.functional_layer.services.delayed_task.IWorkerService;
 import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.functional_layer.weather_deserializers.CurrentDayDeserializer;
-import com.weather_viewer.functional_layer.weather_deserializers.DayDeserializer;
-import com.weather_viewer.functional_layer.weather_deserializers.SignatureCurrentDayDeserializer;
-import com.weather_viewer.functional_layer.weather_deserializers.WorkWeekDeserializer;
-import com.weather_viewer.gui.previews.start.StartPreview;
-import com.weather_viewer.gui.settings.Settings;
-import helpers.TestDataPaths;
-import org.junit.Assert;
+import com.weather_viewer.functional_layer.weather_deserializers.*;
+import com.weather_viewer.gui.general.General;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+
+import static helpers.TestDataPaths.PATH_TO_CURRENT_DAY;
+import static helpers.TestDataPaths.PATH_TO_WORKWEEK;
 
 public class ApiConnectorWeatherForDayMockAndStubTest {
     private final static int TIMEOUT;
@@ -52,10 +44,12 @@ public class ApiConnectorWeatherForDayMockAndStubTest {
         Gson gson = gsonBuilder.create();
 
 
-        JsonElement jsonElementCurrentDay = new JsonParser().parse(Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_CURRENT_DAY), StandardCharsets.UTF_8)
+        JsonElement jsonElementCurrentDay = new JsonParser().parse(Files.readAllLines(
+                Paths.get(CurrentDayDeserializerTest.class.getResource(PATH_TO_CURRENT_DAY).toURI()))
                 .parallelStream().collect(Collectors.joining()));
 
-        JsonElement jsonElementWorkweek = new JsonParser().parse(Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_WORKWEEK), StandardCharsets.UTF_8)
+        JsonElement jsonElementWorkweek = new JsonParser().parse(Files.readAllLines(
+                Paths.get(CurrentDayDeserializerTest.class.getResource(PATH_TO_WORKWEEK).toURI()))
                 .parallelStream().collect(Collectors.joining()));
 
         CurrentDay currentDay = gson.fromJson(jsonElementCurrentDay, CurrentDay.class);
@@ -64,16 +58,8 @@ public class ApiConnectorWeatherForDayMockAndStubTest {
         Mockito.when(connectorWeatherForDay.requestAndGetWeatherStruct()).thenReturn(currentDay);
         Mockito.when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<GeneralFormStart> future = executorService.submit(() -> new GeneralFormStart(new StartPreview(), new Settings()));
-        GeneralFormStart general = future.get();
-        WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, general);
-        executorService.shutdown();
-
-        LocalDateTime maxTime = LocalDateTime.now().plusSeconds(TIMEOUT);
-        while (!general.wasPerform() && LocalDateTime.now().isBefore(maxTime)) ;
-
-        Assert.assertTrue("General form was not disposed", general.wasPerform());
+        IWorkerService build = WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, Mockito.mock(General.class));
+        build.dispose();
 
         Mockito.verify(connectorWeatherForDay, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
         Mockito.verify(connectorForecastForTheWorkWeek, Mockito.atLeastOnce()).requestAndGetWeatherStruct();

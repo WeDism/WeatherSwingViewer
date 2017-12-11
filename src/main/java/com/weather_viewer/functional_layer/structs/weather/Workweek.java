@@ -23,19 +23,19 @@ public class Workweek implements IWeatherStruct {
 
     @Override
     public Signature getSignature() {
-        return getSignatureWorkDay();
+        return this.getSignatureWorkDay();
     }
 
     public List<Day> getListForecasts() {
-        return new ArrayList<>(listForecasts);
+        return new ArrayList<>(this.listForecasts);
     }
 
     public Day getForecast(int forecast) {
-        return listForecasts.get(forecast);
+        return this.listForecasts.get(forecast);
     }
 
     public int sizeListForecasts() {
-        return listForecasts.size();
+        return this.listForecasts.size();
     }
 
     public static class SignatureWorkDay extends Signature {
@@ -47,7 +47,7 @@ public class Workweek implements IWeatherStruct {
         }
 
         public int getCountForecasts() {
-            return countForecasts;
+            return this.countForecasts;
         }
 
         @NotNull

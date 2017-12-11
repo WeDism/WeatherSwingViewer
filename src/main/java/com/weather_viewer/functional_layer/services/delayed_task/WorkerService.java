@@ -50,6 +50,13 @@ public class WorkerService implements IWorkerService {
         EXECUTORS_NUMBER = 2;
     }
 
+    {
+        this.executorScheduled = getNewScheduledExecutor();
+        this.executorFinder = getNewExecutorFinder();
+        this.executorsLoaders = getExecutorsLoaders();
+        this.currentLocation = new AtomicReference<>();
+    }
+
     private WorkerService(IWeatherConnector<CurrentDay> connectorCurrentDay,
                           IWeatherConnector<Workweek> connectorWorkweek,
                           IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay, @NotNull GeneralFormDelegate generalFormListener) {
@@ -60,15 +67,10 @@ public class WorkerService implements IWorkerService {
         this.settingsListener = generalFormListener.getSettingsForm();
         this.currentDay = generalFormListener.getCurrentDay();
         this.workweek = generalFormListener.getWorkweek();
-        this.currentLocation = new AtomicReference<>();
 
 
-        connectorsList = new LinkedList<>(Arrays.asList(this.connectorCurrentDay, this.connectorWorkweek));
-        executorScheduled = getNewScheduledExecutor();
-        executorFinder = getNewExecutorFinder();
-        executorsLoaders = getExecutorsLoaders();
-
-        executorScheduled.scheduleWithFixedDelay(() -> {
+        this.connectorsList = new LinkedList<>(Arrays.asList(this.connectorCurrentDay, this.connectorWorkweek));
+        this.executorScheduled.scheduleWithFixedDelay(() -> {
             getAndUpdate();
             generalFormListener.onPerform();
         }, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);

@@ -47,11 +47,11 @@ public class CurrentDay extends Day implements IWeatherStruct{
         }
 
         public long getSunriseDateTime() {
-            return sunriseDateTime;
+            return this.sunriseDateTime;
         }
 
         public long getSunsetDateTime() {
-            return sunsetDateTime;
+            return this.sunsetDateTime;
         }
 
         @Override

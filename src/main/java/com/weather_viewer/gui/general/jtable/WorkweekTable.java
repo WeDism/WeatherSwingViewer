@@ -18,7 +18,7 @@ public class WorkweekTable implements TableModel {
 
     @Override
     public int getRowCount() {
-        return workweek.sizeListForecasts();
+        return this.workweek.sizeListForecasts();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class WorkweekTable implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Day day = workweek.getForecast(rowIndex);
+        Day day = this.workweek.getForecast(rowIndex);
 
         switch (columnIndex) {
             case 0:

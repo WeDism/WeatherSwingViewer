@@ -14,25 +14,24 @@ public class ApiConnectorTest {
     private final IWeatherConnector<CurrentDay> connector;
 
     public ApiConnectorTest() {
-        connector = ApiConnector.build(SAMARA, RU_COUNTRY, CurrentDay.class);
+        this.connector = ApiConnector.build(SAMARA, RU_COUNTRY, CurrentDay.class);
 
     }
 
     @Test
-    public void apiConnector() throws Exception {
-        assertNotNull("ApiConnectorWeatherForDay not null", connector);
-
+    public void apiConnector() {
+        assertNotNull("ApiConnectorWeatherForDay not null", this.connector);
     }
 
     @Test
     public void request() throws Exception {
-        JsonElement jsonElement = connector.request();
+        JsonElement jsonElement = this.connector.request();
         assertTrue("Request response is not JSON", jsonElement.isJsonObject());
     }
 
     @Test
     public void requestAndGetCurrentDay() throws Exception {
-        CurrentDay currentDay = connector.requestAndGetWeatherStruct();
+        CurrentDay currentDay = this.connector.requestAndGetWeatherStruct();
         assertNotNull("CurrentDay not null", currentDay);
 
     }

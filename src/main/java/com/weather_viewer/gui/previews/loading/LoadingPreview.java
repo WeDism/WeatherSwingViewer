@@ -11,17 +11,17 @@ public class LoadingPreview extends JFrame {
     private JLabel gifLabel;
 
     public LoadingPreview(Component component) {
-        setLocationRelativeTo(component);
-        getContentPane().add(rootPanel);
-        setUndecorated(true);
-        setFocusableWindowState(true);
-        setAlwaysOnTop(true);
+        this.setLocationRelativeTo(component);
+        this.getContentPane().add(this.rootPanel);
+        this.setUndecorated(true);
+        this.setFocusableWindowState(true);
+        this.setAlwaysOnTop(true);
 
-        setBackground(new Color(0, 0, 0, 0));
+        this.setBackground(new Color(0, 0, 0, 0));
 
-        pack();
-        setResizable(false);
-        setVisible(true);
+        this.pack();
+        this.setResizable(false);
+        this.setVisible(true);
     }
 
     {

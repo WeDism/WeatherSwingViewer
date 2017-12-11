@@ -14,17 +14,12 @@ import com.weather_viewer.gui.settings.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WeatherViewer {
+public class WeatherViewer<T extends General> {
 
     private static final Logger LOGGER = Logger.getLogger(WeatherViewer.class.getName());
 
@@ -42,39 +37,44 @@ public class WeatherViewer {
     private final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek;
     private final IWeatherConnector<CurrentDay> connectorWeatherForDay;
     private final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay;
-    private General general;
+    private final Callable<T> callable;
     private static WeatherViewer weatherViewer;
+    private T general;
 
     private WeatherViewer(Properties startUpConf) {
         City samara = new City(startUpConf.getProperty("currentCity"));
         Country ru = new Country(startUpConf.getProperty("countryCode"));
 
-        connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
-        connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
-        connectorSignatureDay = ApiConnector.build(CurrentDay.SignatureCurrentDay.class);
+        this.connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
+        this.connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
+        this.connectorSignatureDay = ApiConnector.build(CurrentDay.SignatureCurrentDay.class);
+        this.callable = () -> (T) new General(new StartPreview(), new Settings());
+    }
+
+    private WeatherViewer(IWeatherConnector<CurrentDay> connectorWeatherForDay,
+                          IWeatherConnector<Workweek> connectorForecastForTheWorkWeek,
+                          IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay, Callable<T> callable) {
+        this.connectorForecastForTheWorkWeek = connectorForecastForTheWorkWeek;
+        this.connectorWeatherForDay = connectorWeatherForDay;
+        this.connectorSignatureDay = connectorSignatureDay;
+        this.callable = callable;
     }
 
     private void createGui() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<General> futureGeneral = executorService.submit(() -> new General(new StartPreview(), new Settings()));
-        general = futureGeneral.get();
-        //Add this Listener because it is should to run all tests
-        general.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                System.exit(0);
-            }
-        });
+        Future<T> futureGeneral = executorService.submit(this.callable);
+        this.general = futureGeneral.get();
         executorService.shutdown();
     }
 
     private void buildWorkerService() {
-        WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, general);
+        WorkerService.build(this.connectorWeatherForDay, this.connectorForecastForTheWorkWeek, this.connectorSignatureDay, this.general);
     }
 
-    public void start() throws ExecutionException, InterruptedException {
+    public WeatherViewer start() throws ExecutionException, InterruptedException {
         createGui();
         buildWorkerService();
+        return this;
     }
 
     public static WeatherViewer getInstance(Properties startUpConf) {
@@ -82,6 +82,20 @@ public class WeatherViewer {
             return weatherViewer;
         weatherViewer = new WeatherViewer(startUpConf);
         return weatherViewer;
+    }
+
+    public static <T extends General> WeatherViewer getInstance(IWeatherConnector<CurrentDay> connectorWeatherForDay,
+                                                                IWeatherConnector<Workweek> connectorForecastForTheWorkWeek,
+                                                                IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
+                                                                Callable<T> callable) {
+        if (weatherViewer != null)
+            return weatherViewer;
+        weatherViewer = new WeatherViewer<>(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, callable);
+        return weatherViewer;
+    }
+
+    public T getGeneral() {
+        return general;
     }
 
     public static WeatherViewer getInstance() throws IllegalStateException {

@@ -24,8 +24,8 @@ public class DoubleClickMouseAdapter extends MouseAdapter {
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
             super.mouseClicked(e);
-            Day day = ((WorkweekTable) workweekJTable.getModel()).getValueAt(workweekJTable.rowAtPoint(e.getPoint()));
-            new DayView(general, workweek.get(), day);
+            Day day = ((WorkweekTable) this.workweekJTable.getModel()).getValueAt(this.workweekJTable.rowAtPoint(e.getPoint()));
+            new DayView(this.general, this.workweek.get(), day);
         }
     }
 }

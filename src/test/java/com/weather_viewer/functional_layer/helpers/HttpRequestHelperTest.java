@@ -25,7 +25,7 @@ public class HttpRequestHelperTest {
 
     private final static String APP_ID;
     private static final Logger LOGGER = Logger.getLogger(HttpRequestHelperTest.class.getName());
-    private HttpClient httpClient;
+    private final HttpClient httpClient;
 
     static {
         Properties properties = new Properties();
@@ -38,7 +38,7 @@ public class HttpRequestHelperTest {
     }
 
     public HttpRequestHelperTest() {
-        httpClient = new HttpClient();
+        this.httpClient = new HttpClient();
         //region Enable for debug settings for fiddler
         //ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
         //HttpProxy proxy = new HttpProxy("127.0.0.1", 8888);
@@ -48,17 +48,17 @@ public class HttpRequestHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        httpClient.start();
+        this.httpClient.start();
     }
 
 
     @Test
     public void insertParamsAfter() throws Exception {
         ContentResponse contentResponse =
-                HttpRequestHelper.modifyRequest(httpClient
+                HttpRequestHelper.modifyRequest(this.httpClient
                         .newRequest(http + WEATHER_URL + Weather)
                         .method(HttpMethod.GET), ApiParams.Q, LONDON_IN_UK)
-                        .param(ApiParams.APPID, APP_ID).send();
+                        .param(ApiParams.APP_ID, APP_ID).send();
 
         assertTrue("Status code: %s but should be %s", contentResponse.getStatus(), HttpStatus.OK_200);
     }
@@ -66,9 +66,9 @@ public class HttpRequestHelperTest {
     @Test
     public void insertParamsBefore() throws Exception {
         ContentResponse contentResponse =
-                HttpRequestHelper.modifyRequest(httpClient.newRequest(http + WEATHER_URL + Weather)
+                HttpRequestHelper.modifyRequest(this.httpClient.newRequest(http + WEATHER_URL + Weather)
                         .method(HttpMethod.GET)
-                        .param(ApiParams.APPID, APP_ID), ApiParams.Q, LONDON_IN_UK)
+                        .param(ApiParams.APP_ID, APP_ID), ApiParams.Q, LONDON_IN_UK)
                         .send();
 
         assertTrue("Status code: %s but should be %s", contentResponse.getStatus(), HttpStatus.OK_200);
@@ -76,6 +76,6 @@ public class HttpRequestHelperTest {
 
     @After
     public void tearDown() throws Exception {
-        httpClient.stop();
+        this.httpClient.stop();
     }
 }

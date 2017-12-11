@@ -7,20 +7,19 @@ import com.google.gson.JsonParser;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
-import helpers.TestDataPaths;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import static helpers.TestDataPaths.PATH_TO_WORKWEEK;
 import static org.junit.Assert.*;
 
 public class WorkweekDeserializerTest {
     @Test
     public void createWorkweekObject() throws Exception {
-        final String jsonAsString = Files.readAllLines(Paths.get(TestDataPaths.PATH_TO_WORKWEEK), StandardCharsets.UTF_8)
+        final String jsonAsString = Files.readAllLines(Paths.get(CurrentDayDeserializerTest.class.getResource(PATH_TO_WORKWEEK).toURI()))
                 .parallelStream().collect(Collectors.joining());
 
         assertNotNull("Test file not find", jsonAsString);
