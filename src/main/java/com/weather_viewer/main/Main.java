@@ -13,7 +13,7 @@ public class Main {
             Properties properties = new Properties();
             properties.load(Main.class.getResourceAsStream("/config.properties"));
 
-            new WeatherViewer(properties).start();
+            WeatherViewer.getInstance(properties).start();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

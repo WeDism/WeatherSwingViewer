@@ -43,16 +43,15 @@ public class WeatherViewer {
     private final IWeatherConnector<CurrentDay> connectorWeatherForDay;
     private final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay;
     private General general;
+    private static WeatherViewer weatherViewer;
 
-    public WeatherViewer(Properties startUpConf) throws InterruptedException, ExecutionException {
+    private WeatherViewer(Properties startUpConf) {
         City samara = new City(startUpConf.getProperty("currentCity"));
         Country ru = new Country(startUpConf.getProperty("countryCode"));
 
         connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
         connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
         connectorSignatureDay = ApiConnector.build(CurrentDay.SignatureCurrentDay.class);
-
-
     }
 
     private void createGui() throws ExecutionException, InterruptedException {
@@ -76,5 +75,23 @@ public class WeatherViewer {
     public void start() throws ExecutionException, InterruptedException {
         createGui();
         buildWorkerService();
+    }
+
+    public static WeatherViewer getInstance(Properties startUpConf) {
+        if (weatherViewer != null)
+            return weatherViewer;
+        weatherViewer = new WeatherViewer(startUpConf);
+        return weatherViewer;
+    }
+
+    public static WeatherViewer getInstance() throws IllegalStateException {
+        if (weatherViewer != null)
+            return weatherViewer;
+        throw new IllegalStateException();
+    }
+
+    public void dispose() {
+        general.dispose();
+        weatherViewer = null;
     }
 }
