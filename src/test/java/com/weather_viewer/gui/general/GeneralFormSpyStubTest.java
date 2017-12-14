@@ -1,6 +1,5 @@
 package com.weather_viewer.gui.general;
 
-import com.stubs.GeneralFormStart;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
@@ -14,6 +13,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.util.concurrent.Callable;
 
@@ -25,7 +26,33 @@ public class GeneralFormSpyStubTest {
 
     private final static int TIMEOUT;
 
-    static class PreviewFormStub extends StartPreview {
+    private static class GeneralFormStart extends General {
+        private boolean isPerform;
+
+        GeneralFormStart(StartPreview startPreview, Settings settings) throws HeadlessException {
+            super(startPreview, settings);
+            this.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    //This code should be and application do not exit before end test
+                }
+            });
+        }
+
+        @Override
+        public void onPerform() {
+            super.onPerform();
+            isPerform = true;
+            super.dispose();
+        }
+
+        @Contract(pure = true)
+        private boolean wasPerform() {
+            return isPerform;
+        }
+    }
+
+    private static class PreviewFormStub extends StartPreview {
         private boolean isDispose;
 
         private PreviewFormStub() throws HeadlessException {

@@ -6,6 +6,7 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Co
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Workweek implements IWeatherStruct {
@@ -27,7 +28,7 @@ public class Workweek implements IWeatherStruct {
     }
 
     public List<Day> getListForecasts() {
-        return new ArrayList<>(this.listForecasts);
+        return Collections.unmodifiableList(this.listForecasts);
     }
 
     public Day getForecast(int forecast) {
