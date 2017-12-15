@@ -41,6 +41,7 @@ public class WorkerService implements IWorkerService {
     private ExecutorService executorsLoaders;
     private long counterResponses;
     private static WorkerService workerService;
+    private volatile static Thread capturedThread;
 
 
     static {
@@ -59,7 +60,8 @@ public class WorkerService implements IWorkerService {
 
     private WorkerService(IWeatherConnector<CurrentDay> connectorCurrentDay,
                           IWeatherConnector<Workweek> connectorWorkweek,
-                          IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay, @NotNull GeneralFormDelegate generalFormListener) {
+                          IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
+                          GeneralFormDelegate generalFormListener) {
         this.connectorCurrentDay = connectorCurrentDay;
         this.connectorWorkweek = connectorWorkweek;
         this.connectorSignatureDay = connectorSignatureDay;
@@ -94,47 +96,52 @@ public class WorkerService implements IWorkerService {
     private void getAndUpdate() {
         List<Future<IWeatherStruct>> futures;
         List<IWeatherStruct> list = new LinkedList<>();
-        List<Callable<IWeatherStruct>> callableList = Arrays.asList(() -> getIWeatherStruct(connectorCurrentDay), () -> getIWeatherStruct(connectorWorkweek));
+        List<Callable<IWeatherStruct>> callableList = Arrays.asList(() -> getIWeatherStruct(this.connectorCurrentDay), () -> getIWeatherStruct(this.connectorWorkweek));
         try {
-            futures = executorsLoaders.invokeAll(callableList);
+            futures = this.executorsLoaders.invokeAll(callableList);
             for (Future<IWeatherStruct> future : futures) {
                 list.add(future.get());
             }
         } catch (InterruptedException | ExecutionException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
-        currentDay.set(list.stream().filter(e -> e instanceof CurrentDay).map(e -> (CurrentDay) e).findAny().orElse(null));
-        workweek.set(list.stream().filter(e -> e instanceof Workweek).map(e -> (Workweek) e).findAny().orElse(null));
-        generalFormListener.onUpdateForm();
+        this.currentDay.set(list.stream().filter(e -> e instanceof CurrentDay).map(e -> (CurrentDay) e).findAny().orElse(null));
+        this.workweek.set(list.stream().filter(e -> e instanceof Workweek).map(e -> (Workweek) e).findAny().orElse(null));
+        this.generalFormListener.onUpdateForm();
     }
 
-    public static IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
-                                       IWeatherConnector<Workweek> connectorWorkweek,
-                                       IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                                       GeneralFormDelegate generalFormListener) {
-        if (workerService != null)
-            return workerService;
-        workerService = new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
-        return workerService;
+    public static synchronized IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
+                                                    IWeatherConnector<Workweek> connectorWorkweek,
+                                                    IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
+                                                    GeneralFormDelegate generalFormListener) throws IllegalAccessException {
+        synchronized (WorkerService.class) {
+            if (WorkerService.capturedThread == null) WorkerService.capturedThread = Thread.currentThread();
+            else throw new IllegalAccessException("Object used in another thread");
+            if (WorkerService.workerService != null)
+                return WorkerService.workerService;
+            WorkerService.workerService = new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
+            LOGGER.log(Level.INFO, "WorkerService was created");
+            return WorkerService.workerService;
+        }
     }
 
     @Contract(pure = true)
     public static IWorkerService getInstance() throws NullPointerException {
-        if (workerService != null)
-            return workerService;
+        if (WorkerService.workerService != null)
+            return WorkerService.workerService;
         throw new NullPointerException("WorkerService is not build");
     }
 
     @Override
     public void resetExecutor() {
-        disposeExecutorService(executorFinder);
-        executorFinder = getNewExecutorFinder();
+        disposeExecutorService(this.executorFinder);
+        this.executorFinder = getNewExecutorFinder();
     }
 
     @Override
     public void resetScheduledExecutor() {
-        disposeExecutorService(executorScheduled);
-        executorScheduled = getNewScheduledExecutor();
+        disposeExecutorService(this.executorScheduled);
+        this.executorScheduled = getNewScheduledExecutor();
 
     }
 
@@ -149,7 +156,6 @@ public class WorkerService implements IWorkerService {
                 if (!executorService.isTerminated()) {
                     LOGGER.log(Level.SEVERE, "Task is not terminated");
                 }
-
                 executorService.shutdownNow();
                 LOGGER.log(Level.SEVERE, "Shutdown finished");
             }
@@ -158,25 +164,26 @@ public class WorkerService implements IWorkerService {
 
     @Override
     public void dispose() {
-        disposeExecutorService(executorFinder, executorScheduled, executorsLoaders);
-        workerService = null;
+        disposeExecutorService(this.executorFinder, this.executorScheduled, this.executorsLoaders);
+        WorkerService.workerService = null;
+        WorkerService.capturedThread = null;
     }
 
     @Override
     public void onSearch(Country country, City city) {
         if (city.toString().isEmpty()) {
-            JOptionPane.showMessageDialog(((Settings) settingsListener), "City must be filled");
+            JOptionPane.showMessageDialog(((Settings) this.settingsListener), "City must be filled");
             return;
         } else if (country.toString().isEmpty()) {
-            JOptionPane.showMessageDialog(((Settings) settingsListener), "Country must be filled");
+            JOptionPane.showMessageDialog(((Settings) this.settingsListener), "Country must be filled");
             return;
         }
-        connectorSignatureDay.setNewData(city, country);
-        settingsListener.onFindLocation(false);
-        executorFinder.execute(() -> {
-            currentLocation.set(getIWeatherStruct(connectorSignatureDay));
-            if (currentLocation.get() != null) settingsListener.onFindLocation(true);
-            else settingsListener.onFindLocation(false);
+        this.connectorSignatureDay.setNewData(city, country);
+        this.settingsListener.onFindLocation(false);
+        this.executorFinder.execute(() -> {
+            this.currentLocation.set(getIWeatherStruct(this.connectorSignatureDay));
+            if (this.currentLocation.get() != null) this.settingsListener.onFindLocation(true);
+            else this.settingsListener.onFindLocation(false);
         });
     }
 
@@ -184,9 +191,9 @@ public class WorkerService implements IWorkerService {
     public void onChangeLocationData() {
         CurrentDay.SignatureCurrentDay signatureCurrentDay = currentLocation.get();
         if (signatureCurrentDay != null) {
-            connectorsList.forEach((a) -> a.setNewData(signatureCurrentDay.getCity(), signatureCurrentDay.getCountry()));
-            executorScheduled.scheduleWithFixedDelay(this::getAndUpdate, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
-            currentLocation.set(null);
+            this.connectorsList.forEach((a) -> a.setNewData(signatureCurrentDay.getCity(), signatureCurrentDay.getCountry()));
+            this.executorScheduled.scheduleWithFixedDelay(this::getAndUpdate, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
+            this.currentLocation.set(null);
         }
     }
 
@@ -195,7 +202,7 @@ public class WorkerService implements IWorkerService {
         try {
             iWeatherStruct = iWeatherConnector.requestAndGetWeatherStruct();
             LOGGER.log(Level.INFO, "{0} connector response number is {1} and current location the {2} in {3}",
-                    new Object[]{iWeatherConnector.getType(), ++counterResponses, iWeatherStruct.getSignature().getCity(),
+                    new Object[]{iWeatherConnector.getType(), ++this.counterResponses, iWeatherStruct.getSignature().getCity(),
                             CountryCode.getByCode(iWeatherStruct.getSignature().getCountry().toString()).getName()});
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, null, e);

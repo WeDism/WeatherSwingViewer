@@ -67,11 +67,11 @@ public class WeatherViewer<T extends General> {
         executorService.shutdown();
     }
 
-    private void buildWorkerService() {
+    private void buildWorkerService() throws IllegalAccessException {
         WorkerService.build(this.connectorWeatherForDay, this.connectorForecastForTheWorkWeek, this.connectorSignatureDay, this.general);
     }
 
-    public WeatherViewer start() throws ExecutionException, InterruptedException {
+    public WeatherViewer start() throws ExecutionException, InterruptedException, IllegalAccessException {
         createGui();
         buildWorkerService();
         return this;

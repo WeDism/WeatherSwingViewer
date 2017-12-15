@@ -5,7 +5,6 @@ import com.weather_viewer.functional_layer.structs.location.concrete_location.Ci
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.weather_viewer.gui.consts.Sign.*;
@@ -131,7 +132,11 @@ public class General extends JFrame implements GeneralFormDelegate {
     public void dispose() {
         super.dispose();
         this.settings.dispose();
-        WorkerService.getInstance().dispose();
+        try {
+            WorkerService.getInstance().dispose();
+        } catch (IllegalAccessException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
     }
 
     private void initJPanelForecast() {

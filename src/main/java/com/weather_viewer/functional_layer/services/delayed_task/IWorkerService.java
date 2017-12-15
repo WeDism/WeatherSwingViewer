@@ -8,5 +8,5 @@ public interface IWorkerService {
     void resetExecutor();
     void onSearch(Country country, City city);
     void onChangeLocationData();
-    void dispose();
+    void dispose() throws IllegalAccessException;
 }
