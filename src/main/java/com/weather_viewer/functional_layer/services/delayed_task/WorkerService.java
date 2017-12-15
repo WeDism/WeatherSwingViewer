@@ -11,7 +11,6 @@ import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.GeneralFormDelegate;
 import com.weather_viewer.gui.settings.Settings;
 import com.weather_viewer.gui.settings.SettingsFormDelegate;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -43,7 +42,6 @@ public class WorkerService implements IWorkerService {
     private static WorkerService workerService;
     private volatile static Thread capturedThread;
 
-
     static {
         LOGGER = Logger.getLogger(WorkerService.class.getName());
         PERIOD = 30L;
@@ -69,7 +67,6 @@ public class WorkerService implements IWorkerService {
         this.settingsListener = generalFormListener.getSettingsForm();
         this.currentDay = generalFormListener.getCurrentDay();
         this.workweek = generalFormListener.getWorkweek();
-
 
         this.connectorsList = new LinkedList<>(Arrays.asList(this.connectorCurrentDay, this.connectorWorkweek));
         this.executorScheduled.scheduleWithFixedDelay(() -> {
@@ -110,25 +107,30 @@ public class WorkerService implements IWorkerService {
         this.generalFormListener.onUpdateForm();
     }
 
-    public static synchronized IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
+    public synchronized static IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
                                                     IWeatherConnector<Workweek> connectorWorkweek,
                                                     IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                                                    GeneralFormDelegate generalFormListener) throws IllegalAccessException {
-        synchronized (WorkerService.class) {
-            if (WorkerService.capturedThread == null) WorkerService.capturedThread = Thread.currentThread();
-            else throw new IllegalAccessException("Object used in another thread");
-            if (WorkerService.workerService != null)
-                return WorkerService.workerService;
-            WorkerService.workerService = new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
-            LOGGER.log(Level.INFO, "WorkerService was created");
-            return WorkerService.workerService;
-        }
+                                                    GeneralFormDelegate generalFormListener) throws InterruptedException {
+        if (WorkerService.capturedThread == null) WorkerService.capturedThread = Thread.currentThread();
+        else if (!WorkerService.capturedThread.equals(Thread.currentThread())) {
+            LOGGER.log(Level.INFO, String.format("Thread %s is wait", Thread.currentThread().getName()));
+            WorkerService.class.wait();
+            LOGGER.log(Level.INFO, String.format("Thread %s is run", Thread.currentThread().getName()));
+        } else workerService.dispose();
+        WorkerService.workerService = new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
+        LOGGER.log(Level.INFO, "WorkerService was created");
+        return WorkerService.workerService;
+
     }
 
-    @Contract(pure = true)
-    public static IWorkerService getInstance() throws NullPointerException {
-        if (WorkerService.workerService != null)
+    public synchronized static IWorkerService getInstance() throws NullPointerException, InterruptedException {
+        if (WorkerService.workerService != null && WorkerService.capturedThread.equals(Thread.currentThread()))
             return WorkerService.workerService;
+        else if (WorkerService.workerService != null && !WorkerService.capturedThread.equals(Thread.currentThread())){
+            LOGGER.log(Level.INFO, String.format("Thread %s is wait", Thread.currentThread().getName()));
+            WorkerService.class.wait();
+            LOGGER.log(Level.INFO, String.format("Thread %s is run", Thread.currentThread().getName()));
+        }
         throw new NullPointerException("WorkerService is not build");
     }
 
@@ -164,9 +166,12 @@ public class WorkerService implements IWorkerService {
 
     @Override
     public void dispose() {
-        disposeExecutorService(this.executorFinder, this.executorScheduled, this.executorsLoaders);
-        WorkerService.workerService = null;
-        WorkerService.capturedThread = null;
+        synchronized (WorkerService.class) {
+            disposeExecutorService(this.executorFinder, this.executorScheduled, this.executorsLoaders);
+            WorkerService.workerService = null;
+            WorkerService.capturedThread = null;
+            WorkerService.class.notify();
+        }
     }
 
     @Override

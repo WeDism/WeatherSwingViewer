@@ -134,7 +134,7 @@ public class General extends JFrame implements GeneralFormDelegate {
         this.settings.dispose();
         try {
             WorkerService.getInstance().dispose();
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException | InterruptedException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
     }

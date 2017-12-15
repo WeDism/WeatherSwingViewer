@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -55,50 +54,35 @@ public class WorkweekConcurrentTest {
         Mockito.when(connectorWeatherForDay.requestAndGetWeatherStruct()).thenReturn(currentDay);
         Mockito.when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
 
-        AtomicInteger atomicInteger = new AtomicInteger(0);
+        Thread thread1 = new Thread(() ->
+                run(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay));
+        thread1.start();
 
+        Thread thread2 = new Thread(() ->
+                run(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay)
+        );
+        thread2.start();
 
-        new Thread(() ->
-        {
-            boolean isMade = true;
-            while (isMade) {
-                try {
-                    IWorkerService buildFistThread = WorkerService.build(
-                            connectorWeatherForDay,
-                            connectorForecastForTheWorkWeek,
-                            connectorSignatureDay,
-                            Mockito.mock(General.class));
-                    buildFistThread.dispose();
-                    isMade = false;
-                    atomicInteger.incrementAndGet();
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.WARNING, null, e);
-                    isMade = true;
-                }
-            }
-        }).start();
+        thread1.join();
+        thread2.join();
 
-        new Thread(() ->
-        {
-            boolean isMade = true;
-            while (isMade) {
-                try {
-                    IWorkerService buildSecondThread = WorkerService.build(
-                            connectorWeatherForDay,
-                            connectorForecastForTheWorkWeek,
-                            connectorSignatureDay,
-                            Mockito.mock(General.class));
-                    buildSecondThread.dispose();
-                    isMade = false;
-                    atomicInteger.incrementAndGet();
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.WARNING, null, e);
-                    isMade = true;
-                }
+    }
+
+    private void run(IWeatherConnector<CurrentDay> connectorWeatherForDay, IWeatherConnector<Workweek> connectorForecastForTheWorkWeek, IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay) {
+        boolean isMade = true;
+        while (isMade) {
+            try {
+                IWorkerService buildSecondThread = WorkerService.build(
+                        connectorWeatherForDay,
+                        connectorForecastForTheWorkWeek,
+                        connectorSignatureDay,
+                        Mockito.mock(General.class));
+                buildSecondThread.dispose();
+                isMade = false;
+            } catch (InterruptedException | IllegalAccessException e) {
+                LOGGER.log(Level.SEVERE, null, e);
+                isMade = true;
             }
         }
-        ).start();
-
-        while (atomicInteger.get() < 2) ;
     }
 }

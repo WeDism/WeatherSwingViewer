@@ -16,10 +16,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Settings extends JDialog implements SettingsFormDelegate {
+    private final static Logger LOGGER;
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -32,6 +35,10 @@ public class Settings extends JDialog implements SettingsFormDelegate {
     private JPanel loadingPanel;
     private JLabel loadingLabel;
     private boolean isAnimate = false;
+
+    static {
+        LOGGER = Logger.getLogger(Settings.class.getName());
+    }
 
     public Settings() {
         this.buttonOK.setEnabled(false);
@@ -85,9 +92,13 @@ public class Settings extends JDialog implements SettingsFormDelegate {
     }
 
     private void readDataFromForm() {
-        WorkerService.getInstance().onSearch(
-                new Country(String.valueOf(this.comboBoxCountry.getSelectedItem()).toLowerCase()),
-                new City(this.cityTextField.getText().trim().toLowerCase()));
+        try {
+            WorkerService.getInstance().onSearch(
+                    new Country(String.valueOf(this.comboBoxCountry.getSelectedItem()).toLowerCase()),
+                    new City(this.cityTextField.getText().trim().toLowerCase()));
+        } catch (InterruptedException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
     }
 
     public void resetUI() {
@@ -108,14 +119,25 @@ public class Settings extends JDialog implements SettingsFormDelegate {
     @Override
     public void onOK() {
         if (this.cityIsFindCheckBox.isSelected()) {
-            IWorkerService instance = WorkerService.getInstance();
-            instance.onChangeLocationData();
-            this.setVisible(false);
+            IWorkerService instance = null;
+            try {
+                instance = WorkerService.getInstance();
+            } catch (InterruptedException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+            if (instance != null) {
+                instance.onChangeLocationData();
+                this.setVisible(false);
+            } else LOGGER.log(Level.SEVERE, "WorkerService.getInstance() is null");
         }
     }
 
     private void onCancel() {
-        WorkerService.getInstance().resetExecutor();
+        try {
+            WorkerService.getInstance().resetExecutor();
+        } catch (InterruptedException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
         this.setVisible(false);
     }
 
