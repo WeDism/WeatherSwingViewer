@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/WeR58/WeatherSwingViewer.svg?branch=master)](https://travis-ci.org/WeR58/WeatherSwingViewer)[![codecov](https://codecov.io/gh/WeR58/WeatherSwingViewer/branch/master/graph/badge.svg)](https://codecov.io/gh/WeR58/WeatherSwingViewer)
+[![Build Status](https://travis-ci.org/WeR58/WeatherSwingViewer.svg?branch=master)](https://travis-ci.org/WeR58/WeatherSwingViewer) 
+[![codecov](https://codecov.io/gh/WeR58/WeatherSwingViewer/branch/master/graph/badge.svg)](https://codecov.io/gh/WeR58/WeatherSwingViewer)
 
 # This is a free application for weather the viewer 
 ![Weather Viewer](/src/main/resources/images/PartlyCloudy.png)
