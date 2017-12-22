@@ -8,6 +8,11 @@ sudo: false
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+addons:
+  apt:
+    packages:
+      - x11-apps
+
 # Отправлять уведомление на почту youremail@smtp.ru (Изменить на свою) если сборка упала
 notifications:
   email:
