@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static helpers.TestDataPaths.PATH_TO_CURRENT_DAY;
@@ -59,6 +60,7 @@ public class ApiConnectorWeatherForDayMockAndStubTest {
         Mockito.when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
 
         IWorkerService build = WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, Mockito.mock(General.class));
+        TimeUnit.SECONDS.sleep(2);
         build.dispose();
 
         Mockito.verify(connectorWeatherForDay, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
