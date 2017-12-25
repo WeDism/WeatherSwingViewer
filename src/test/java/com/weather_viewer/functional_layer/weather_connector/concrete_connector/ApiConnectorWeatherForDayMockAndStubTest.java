@@ -60,7 +60,8 @@ public class ApiConnectorWeatherForDayMockAndStubTest {
         Mockito.when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
 
         IWorkerService build = WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, Mockito.mock(General.class));
-        TimeUnit.MILLISECONDS.sleep(300);
+        //for travis ci
+        TimeUnit.MILLISECONDS.sleep(100);
         build.dispose();
 
         Mockito.verify(connectorWeatherForDay, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
