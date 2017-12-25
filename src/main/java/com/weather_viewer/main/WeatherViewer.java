@@ -1,6 +1,10 @@
 package com.weather_viewer.main;
 
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+import com.weather_viewer.functional_layer.application.Context;
+import com.weather_viewer.functional_layer.application.IContext;
+import com.weather_viewer.functional_layer.exceptions.ObjectContainsException;
+import com.weather_viewer.functional_layer.services.delayed_task.IWorkerService;
 import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
@@ -22,6 +26,15 @@ import java.util.logging.Logger;
 public class WeatherViewer<T extends General> {
 
     private static final Logger LOGGER = Logger.getLogger(WeatherViewer.class.getName());
+    private final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek;
+    private final IWeatherConnector<CurrentDay> connectorWeatherForDay;
+    private final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay;
+    private final Callable<T> callable;
+    private static WeatherViewer weatherViewer;
+    private T general;
+    private final IContext context = Context.build();
+    private volatile static Thread capturedThread;
+
 
     static {
         try {
@@ -33,13 +46,10 @@ public class WeatherViewer<T extends General> {
         }
     }
 
-
-    private final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek;
-    private final IWeatherConnector<CurrentDay> connectorWeatherForDay;
-    private final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay;
-    private final Callable<T> callable;
-    private static WeatherViewer weatherViewer;
-    private T general;
+    {
+        this.context.add(StartPreview.class, new StartPreview())
+                .add(Settings.class, new Settings(this.context));
+    }
 
     private WeatherViewer(Properties startUpConf) {
         City samara = new City(startUpConf.getProperty("currentCity"));
@@ -48,7 +58,7 @@ public class WeatherViewer<T extends General> {
         this.connectorForecastForTheWorkWeek = ApiConnector.build(samara, ru, Workweek.class);
         this.connectorWeatherForDay = ApiConnector.build(samara, ru, CurrentDay.class);
         this.connectorSignatureDay = ApiConnector.build(CurrentDay.SignatureCurrentDay.class);
-        this.callable = () -> (T) new General(new StartPreview(), new Settings());
+        this.callable = () -> (T) new General(this.context);
     }
 
     private WeatherViewer(IWeatherConnector<CurrentDay> connectorWeatherForDay,
@@ -67,45 +77,53 @@ public class WeatherViewer<T extends General> {
         executorService.shutdown();
     }
 
-    private void buildWorkerService() throws InterruptedException {
-        WorkerService.build(this.connectorWeatherForDay, this.connectorForecastForTheWorkWeek, this.connectorSignatureDay, this.general);
+    private void buildWorkerService() throws ObjectContainsException {
+        this.context.add(IWorkerService.class,
+                WorkerService.build(this.connectorWeatherForDay, this.connectorForecastForTheWorkWeek, this.connectorSignatureDay, this.general));
     }
 
-    public WeatherViewer start() throws ExecutionException, InterruptedException {
-        createGui();
-        buildWorkerService();
+    public WeatherViewer start() throws ExecutionException, InterruptedException, ObjectContainsException {
+        this.createGui();
+        this.buildWorkerService();
         return this;
     }
 
-    public static WeatherViewer getInstance(Properties startUpConf) {
-        if (weatherViewer != null)
-            return weatherViewer;
-        weatherViewer = new WeatherViewer(startUpConf);
+    public synchronized static WeatherViewer getInstance(Properties startUpConf) throws InterruptedException {
+        previewGetInstance();
+        WeatherViewer.weatherViewer = new WeatherViewer(startUpConf);
+        LOGGER.log(Level.INFO, "WeatherViewer was created");
         return weatherViewer;
     }
 
-    public static <T extends General> WeatherViewer getInstance(IWeatherConnector<CurrentDay> connectorWeatherForDay,
-                                                                IWeatherConnector<Workweek> connectorForecastForTheWorkWeek,
-                                                                IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                                                                Callable<T> callable) {
-        if (weatherViewer != null)
-            return weatherViewer;
-        weatherViewer = new WeatherViewer<>(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, callable);
+    public synchronized static <T extends General> WeatherViewer getInstance(IWeatherConnector<CurrentDay> connectorWeatherForDay,
+                                                                             IWeatherConnector<Workweek> connectorForecastForTheWorkWeek,
+                                                                             IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
+                                                                             Callable<T> callable) throws InterruptedException {
+        previewGetInstance();
+        WeatherViewer.weatherViewer = new WeatherViewer<>(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, callable);
+        LOGGER.log(Level.INFO, "WeatherViewer was created");
         return weatherViewer;
+
+    }
+
+    private static void previewGetInstance() throws InterruptedException {
+        if (WeatherViewer.capturedThread == null) WeatherViewer.capturedThread = Thread.currentThread();
+        else if (!WeatherViewer.capturedThread.equals(Thread.currentThread())) {
+            LOGGER.log(Level.INFO, String.format("Thread %s is wait", Thread.currentThread().getName()));
+            WeatherViewer.class.wait();
+            LOGGER.log(Level.INFO, String.format("Thread %s is run", Thread.currentThread().getName()));
+        } else weatherViewer.dispose();
     }
 
     public T getGeneral() {
         return general;
     }
 
-    public static WeatherViewer getInstance() throws IllegalStateException {
-        if (weatherViewer != null)
-            return weatherViewer;
-        throw new IllegalStateException();
-    }
-
     public void dispose() {
-        general.dispose();
-        weatherViewer = null;
+        synchronized (WeatherViewer.class) {
+            weatherViewer = null;
+            general.dispose();
+            WeatherViewer.class.notify();
+        }
     }
 }

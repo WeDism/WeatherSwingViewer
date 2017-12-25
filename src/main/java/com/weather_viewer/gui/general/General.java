@@ -4,7 +4,8 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.toedter.calendar.JCalendar;
-import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
+import com.weather_viewer.functional_layer.application.IContext;
+import com.weather_viewer.functional_layer.services.delayed_task.IWorkerService;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.gui.general.jtable.DoubleClickMouseAdapter;
@@ -20,7 +21,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.weather_viewer.gui.consts.Sign.*;
@@ -29,9 +29,9 @@ public class General extends JFrame implements GeneralFormDelegate {
 
     //region Fields
     //region consts
-    private static final Logger LOGGER;
-    private final AtomicReference<CurrentDay> currentDay;
-    private final AtomicReference<Workweek> workweek;
+    private static final Logger LOGGER = Logger.getLogger(General.class.getName());
+    private final AtomicReference<CurrentDay> currentDay = new AtomicReference<>();
+    private final AtomicReference<Workweek> workweek = new AtomicReference<>();
     //endregion
     //region Labels
     private JLabel locationLabel;
@@ -80,22 +80,13 @@ public class General extends JFrame implements GeneralFormDelegate {
     private JTable workweekJTable;
     private final Settings settings;
     private final StartPreview startPreview;
+    private final IContext context;
     //endregion
 
-
-    static {
-        LOGGER = Logger.getLogger(General.class.getName());
-    }
-
-    {
-        this.currentDay = new AtomicReference<>();
-        this.workweek = new AtomicReference<>();
-    }
-
-    public General(StartPreview startPreview, Settings settings) throws HeadlessException {
-        this.settings = settings;
-        this.startPreview = startPreview;
-
+    public General(IContext context) throws HeadlessException {
+        this.settings = (Settings) context.get(Settings.class);
+        this.startPreview = ((StartPreview) context.get(StartPreview.class));
+        this.context = context;
         this.initGeneral();
     }
 
@@ -113,8 +104,8 @@ public class General extends JFrame implements GeneralFormDelegate {
 
     private void addListeners() {
         this.changeLocationMenuItem.addActionListener(e -> {
-            settings.setLocationRelativeTo(this);
-            settings.resetUI();
+            this.settings.setLocationRelativeTo(this);
+            this.settings.resetUI();
         });
 
         this.addWindowListener(new WindowAdapter() {
@@ -132,11 +123,7 @@ public class General extends JFrame implements GeneralFormDelegate {
     public void dispose() {
         super.dispose();
         this.settings.dispose();
-        try {
-            WorkerService.getInstance().dispose();
-        } catch (IllegalAccessException | InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-        }
+        ((IWorkerService) this.context.get(IWorkerService.class)).dispose();
     }
 
     private void initJPanelForecast() {

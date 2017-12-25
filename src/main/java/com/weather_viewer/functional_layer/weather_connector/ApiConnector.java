@@ -39,7 +39,7 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
     private static final Logger LOGGER = Logger.getLogger(ApiConnector.class.getName());
     private static final String APP_ID;
     private static final Map<Type, WeatherPlan> WEATHER_PLAN_HASH_MAP = new HashMap<>();
-    private final HttpClient httpClient;
+    private final HttpClient httpClient = new HttpClient();
     private final Gson gson;
     private final Class<T> typeParameterClass;
     private City city;
@@ -57,11 +57,9 @@ public class ApiConnector<T extends IWeatherStruct> implements IWeatherConnector
             LOGGER.log(Level.SEVERE, null, ex);
         }
         APP_ID = properties.getProperty("appId");
-
     }
 
     {
-        this.httpClient = new HttpClient();
         this.httpClient.setFollowRedirects(false);
 
         GsonBuilder gsonBuilder = new GsonBuilder();

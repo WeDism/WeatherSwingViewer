@@ -2,6 +2,9 @@ package com.weather_viewer.functional_layer.services.delayed_task;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.neovisionaries.i18n.CountryCode;
+import com.weather_viewer.functional_layer.exceptions.EmptyCityException;
+import com.weather_viewer.functional_layer.exceptions.EmptyCountryException;
+import com.weather_viewer.functional_layer.exceptions.ObjectContainsException;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
@@ -9,60 +12,45 @@ import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.GeneralFormDelegate;
-import com.weather_viewer.gui.settings.Settings;
 import com.weather_viewer.gui.settings.SettingsFormDelegate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WorkerService implements IWorkerService {
-    private static final Logger LOGGER;
-    private static final long PERIOD, INITIAL_DELAY;
-    private static final int EXECUTORS_NUMBER;
+    private static final Logger LOGGER = Logger.getLogger(WorkerService.class.getName());
+    private static final long PERIOD = 30L, INITIAL_DELAY = 0L;
+    private static final int EXECUTORS_NUMBER = 2;
+    private static final Set UNIQUE_CONNECTORS_AND_DELEGATE = new HashSet();
     private final IWeatherConnector<CurrentDay> connectorCurrentDay;
     private final IWeatherConnector<Workweek> connectorWorkweek;
     private final AtomicReference<CurrentDay> currentDay;
     private final AtomicReference<Workweek> workweek;
-    private final AtomicReference<CurrentDay.SignatureCurrentDay> currentLocation;
+    private final AtomicReference<CurrentDay.SignatureCurrentDay> currentLocation = new AtomicReference<>();
     private final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay;
     private final List<IWeatherConnector> connectorsList;
     private final GeneralFormDelegate generalFormListener;
     private final SettingsFormDelegate settingsListener;
-    private ScheduledExecutorService executorScheduled;
-    private ExecutorService executorFinder;
-    private ExecutorService executorsLoaders;
+    private ScheduledExecutorService executorScheduled = getNewScheduledExecutor();
+    private ExecutorService executorFinder = getNewExecutorFinder();
+    private ExecutorService executorsLoaders = getExecutorsLoaders();
     private long counterResponses;
-    private static WorkerService workerService;
-    private volatile static Thread capturedThread;
-
-    static {
-        LOGGER = Logger.getLogger(WorkerService.class.getName());
-        PERIOD = 30L;
-        INITIAL_DELAY = 0L;
-        EXECUTORS_NUMBER = 2;
-    }
-
-    {
-        this.executorScheduled = getNewScheduledExecutor();
-        this.executorFinder = getNewExecutorFinder();
-        this.executorsLoaders = getExecutorsLoaders();
-        this.currentLocation = new AtomicReference<>();
-    }
 
     private WorkerService(IWeatherConnector<CurrentDay> connectorCurrentDay,
                           IWeatherConnector<Workweek> connectorWorkweek,
                           IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                          GeneralFormDelegate generalFormListener) {
+                          GeneralFormDelegate generalFormListener) throws ObjectContainsException {
+        this.validateObjects(connectorCurrentDay);
         this.connectorCurrentDay = connectorCurrentDay;
+        this.validateObjects(connectorWorkweek);
         this.connectorWorkweek = connectorWorkweek;
+        this.validateObjects(connectorSignatureDay);
         this.connectorSignatureDay = connectorSignatureDay;
+        this.validateObjects(generalFormListener);
         this.generalFormListener = generalFormListener;
         this.settingsListener = generalFormListener.getSettingsForm();
         this.currentDay = generalFormListener.getCurrentDay();
@@ -73,6 +61,12 @@ public class WorkerService implements IWorkerService {
             getAndUpdate();
             generalFormListener.onPerform();
         }, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
+    }
+
+    private void validateObjects(Object object) throws ObjectContainsException {
+        if (!WorkerService.UNIQUE_CONNECTORS_AND_DELEGATE.contains(object))
+            WorkerService.UNIQUE_CONNECTORS_AND_DELEGATE.add(object);
+        else throw new ObjectContainsException();
     }
 
     @NotNull
@@ -110,28 +104,8 @@ public class WorkerService implements IWorkerService {
     public synchronized static IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
                                                     IWeatherConnector<Workweek> connectorWorkweek,
                                                     IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                                                    GeneralFormDelegate generalFormListener) throws InterruptedException {
-        if (WorkerService.capturedThread == null) WorkerService.capturedThread = Thread.currentThread();
-        else if (!WorkerService.capturedThread.equals(Thread.currentThread())) {
-            LOGGER.log(Level.INFO, String.format("Thread %s is wait", Thread.currentThread().getName()));
-            WorkerService.class.wait();
-            LOGGER.log(Level.INFO, String.format("Thread %s is run", Thread.currentThread().getName()));
-        } else workerService.dispose();
-        WorkerService.workerService = new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
-        LOGGER.log(Level.INFO, "WorkerService was created");
-        return WorkerService.workerService;
-
-    }
-
-    public synchronized static IWorkerService getInstance() throws NullPointerException, InterruptedException {
-        if (WorkerService.workerService != null && WorkerService.capturedThread.equals(Thread.currentThread()))
-            return WorkerService.workerService;
-        else if (WorkerService.workerService != null && !WorkerService.capturedThread.equals(Thread.currentThread())){
-            LOGGER.log(Level.INFO, String.format("Thread %s is wait", Thread.currentThread().getName()));
-            WorkerService.class.wait();
-            LOGGER.log(Level.INFO, String.format("Thread %s is run", Thread.currentThread().getName()));
-        }
-        throw new NullPointerException("WorkerService is not build");
+                                                    GeneralFormDelegate generalFormListener) throws ObjectContainsException {
+        return new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
     }
 
     @Override
@@ -166,22 +140,15 @@ public class WorkerService implements IWorkerService {
 
     @Override
     public void dispose() {
-        synchronized (WorkerService.class) {
-            disposeExecutorService(this.executorFinder, this.executorScheduled, this.executorsLoaders);
-            WorkerService.workerService = null;
-            WorkerService.capturedThread = null;
-            WorkerService.class.notify();
-        }
+        disposeExecutorService(this.executorFinder, this.executorScheduled, this.executorsLoaders);
     }
 
     @Override
-    public void onSearch(Country country, City city) {
+    public void onSearch(Country country, City city) throws EmptyCountryException, EmptyCityException {
         if (city.toString().isEmpty()) {
-            JOptionPane.showMessageDialog(((Settings) this.settingsListener), "City must be filled");
-            return;
+            throw new EmptyCityException();
         } else if (country.toString().isEmpty()) {
-            JOptionPane.showMessageDialog(((Settings) this.settingsListener), "Country must be filled");
-            return;
+            throw new EmptyCountryException();
         }
         this.connectorSignatureDay.setNewData(city, country);
         this.settingsListener.onFindLocation(false);

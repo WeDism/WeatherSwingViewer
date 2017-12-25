@@ -4,8 +4,10 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.neovisionaries.i18n.CountryCode;
+import com.weather_viewer.functional_layer.application.IContext;
+import com.weather_viewer.functional_layer.exceptions.EmptyCityException;
+import com.weather_viewer.functional_layer.exceptions.EmptyCountryException;
 import com.weather_viewer.functional_layer.services.delayed_task.IWorkerService;
-import com.weather_viewer.functional_layer.services.delayed_task.WorkerService;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
 import com.weather_viewer.gui.general.General;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Settings extends JDialog implements SettingsFormDelegate {
-    private final static Logger LOGGER;
+    private final static Logger LOGGER = Logger.getLogger(Settings.class.getName());
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -35,12 +37,10 @@ public class Settings extends JDialog implements SettingsFormDelegate {
     private JPanel loadingPanel;
     private JLabel loadingLabel;
     private boolean isAnimate = false;
+    private final IContext context;
 
-    static {
-        LOGGER = Logger.getLogger(Settings.class.getName());
-    }
-
-    public Settings() {
+    public Settings(IContext context) {
+        this.context = context;
         this.buttonOK.setEnabled(false);
         this.addListeners();
         this.comboBoxCountry.setModel(
@@ -93,11 +93,11 @@ public class Settings extends JDialog implements SettingsFormDelegate {
 
     private void readDataFromForm() {
         try {
-            WorkerService.getInstance().onSearch(
+            ((IWorkerService) this.context.get(IWorkerService.class)).onSearch(
                     new Country(String.valueOf(this.comboBoxCountry.getSelectedItem()).toLowerCase()),
                     new City(this.cityTextField.getText().trim().toLowerCase()));
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+        } catch (EmptyCountryException | EmptyCityException ex) {
+            JOptionPane.showMessageDialog((this), ex.getMessage());
         }
     }
 
@@ -119,25 +119,16 @@ public class Settings extends JDialog implements SettingsFormDelegate {
     @Override
     public void onOK() {
         if (this.cityIsFindCheckBox.isSelected()) {
-            IWorkerService instance = null;
-            try {
-                instance = WorkerService.getInstance();
-            } catch (InterruptedException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
-            }
+            IWorkerService instance = ((IWorkerService) this.context.get(IWorkerService.class));
             if (instance != null) {
                 instance.onChangeLocationData();
                 this.setVisible(false);
-            } else LOGGER.log(Level.SEVERE, "WorkerService.getInstance() is null");
+            } else LOGGER.log(Level.SEVERE, "IWorkerService is null");
         }
     }
 
     private void onCancel() {
-        try {
-            WorkerService.getInstance().resetExecutor();
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-        }
+        ((IWorkerService) this.context.get(IWorkerService.class)).resetExecutor();
         this.setVisible(false);
     }
 

@@ -1,5 +1,7 @@
 package com.weather_viewer.gui.general;
 
+import com.weather_viewer.functional_layer.application.Context;
+import com.weather_viewer.functional_layer.application.IContext;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
@@ -29,8 +31,9 @@ public class GeneralFormSpyStubTest {
     private static class GeneralFormStart extends General {
         private boolean isPerform;
 
-        GeneralFormStart(StartPreview startPreview, Settings settings) throws HeadlessException {
-            super(startPreview, settings);
+        GeneralFormStart(IContext context) {
+            super(context);
+
             this.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
@@ -84,9 +87,12 @@ public class GeneralFormSpyStubTest {
         IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay
                 = Mockito.mock(ApiConnector.class);
 
-        final PreviewFormStub previewFormStub = new PreviewFormStub();
+        final IContext context = Context.build();
+        context.add(StartPreview.class, new PreviewFormStub())
+                .add(Settings.class, new Settings(context));
 
-        Callable<GeneralFormStart> generalFormStartCallable = () -> new GeneralFormStart(previewFormStub, new Settings());
+
+        Callable<GeneralFormStart> generalFormStartCallable = () -> new GeneralFormStart(context);
         WeatherViewer<GeneralFormStart> start = WeatherViewer.getInstance
                 (connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, generalFormStartCallable).start();
         GeneralFormStart general = start.getGeneral();
@@ -95,7 +101,7 @@ public class GeneralFormSpyStubTest {
         while (!general.wasPerform() && LocalDateTime.now().isBefore(maxTime)) ;
 
         Assert.assertTrue("General form was not disposed", general.wasPerform());
-        Assert.assertTrue("StartPreview was not disposed", previewFormStub.wasDisposed());
+        Assert.assertTrue("StartPreview was not disposed", ((PreviewFormStub) context.get(StartPreview.class)).wasDisposed());
 
         verify(connectorWeatherForDay, times(1)).requestAndGetWeatherStruct();
         verify(connectorForecastForTheWorkWeek, times(1)).requestAndGetWeatherStruct();
