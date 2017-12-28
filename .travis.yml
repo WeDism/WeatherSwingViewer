@@ -8,7 +8,7 @@ sudo: false
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-//TODO add deploy from Travis CI
+#TODO add deploy from Travis CI
 #deploy:
 #  provider: releases
 #  api_key: f596159230792d134f25
