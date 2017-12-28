@@ -8,13 +8,14 @@ sudo: false
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-deploy:
-  provider: releases
-  api_key: f596159230792d134f25
-  file: WeatherSwingViewer-1.0-full.jar
-  skip_cleanup: true
-  on:
-    tags: true
+//TODO add deploy from Travis CI
+#deploy:
+#  provider: releases
+#  api_key: f596159230792d134f25
+#  file: WeatherSwingViewer-1.0-full.jar
+#  skip_cleanup: true
+#  on:
+#    tags: true
 
 addons:
   apt:
