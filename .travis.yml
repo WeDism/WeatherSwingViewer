@@ -8,6 +8,13 @@ sudo: false
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+deploy:
+  provider: releases
+  api_key: "GITHUB OAUTH TOKEN"
+  file: WeatherSwingViewer-1.0-full.jar
+  on:
+    tags: true
+
 addons:
   apt:
     packages:
