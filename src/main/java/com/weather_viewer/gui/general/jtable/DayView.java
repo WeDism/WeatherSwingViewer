@@ -5,7 +5,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
-import com.weather_viewer.gui.general.General;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -27,7 +26,7 @@ public class DayView extends JDialog {
     private JLabel windDegreesLabel;
     private JLabel timeLabel;
 
-    public DayView(General general, @NotNull Workweek workweek, @NotNull Day day) {
+    public DayView(JFrame general, @NotNull Workweek workweek, @NotNull Day day) {
         this.setTitle("Forecast per " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getDateTime()));
         this.contentPane.registerKeyboardAction(e -> dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 

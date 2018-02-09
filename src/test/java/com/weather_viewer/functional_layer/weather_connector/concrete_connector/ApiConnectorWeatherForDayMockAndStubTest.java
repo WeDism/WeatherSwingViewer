@@ -12,9 +12,8 @@ import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.functional_layer.weather_deserializers.*;
-import com.weather_viewer.gui.general.General;
+import helpers.TestData;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static helpers.TestDataPaths.PATH_TO_CURRENT_DAY;
 import static helpers.TestDataPaths.PATH_TO_WORKWEEK;
+import static org.mockito.Mockito.*;
 
 public class ApiConnectorWeatherForDayMockAndStubTest {
     private final static int TIMEOUT;
@@ -33,9 +33,9 @@ public class ApiConnectorWeatherForDayMockAndStubTest {
 
     @Test
     public void request() throws Exception {
-        final IWeatherConnector<CurrentDay> connectorWeatherForDay = Mockito.mock(ApiConnector.class);
-        final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = Mockito.mock(ApiConnector.class);
-        final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay = Mockito.mock(ApiConnector.class);
+        final IWeatherConnector<CurrentDay> connectorWeatherForDay = mock(ApiConnector.class);
+        final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = mock(ApiConnector.class);
+        final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay = mock(ApiConnector.class);
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(CurrentDay.SignatureCurrentDay.class, new SignatureCurrentDayDeserializer());
@@ -56,15 +56,15 @@ public class ApiConnectorWeatherForDayMockAndStubTest {
         CurrentDay currentDay = gson.fromJson(jsonElementCurrentDay, CurrentDay.class);
         Workweek workweek = gson.fromJson(jsonElementWorkweek, Workweek.class);
 
-        Mockito.when(connectorWeatherForDay.requestAndGetWeatherStruct()).thenReturn(currentDay);
-        Mockito.when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
+        when(connectorWeatherForDay.requestAndGetWeatherStruct()).thenReturn(currentDay);
+        when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
 
-        IWorkerService build = WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, Mockito.mock(General.class));
+        IWorkerService build = WorkerService.build(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, TestData.getMockContext());
         //for travis ci
         TimeUnit.MILLISECONDS.sleep(100);
         build.dispose();
 
-        Mockito.verify(connectorWeatherForDay, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
-        Mockito.verify(connectorForecastForTheWorkWeek, Mockito.atLeastOnce()).requestAndGetWeatherStruct();
+        verify(connectorWeatherForDay, atLeastOnce()).requestAndGetWeatherStruct();
+        verify(connectorForecastForTheWorkWeek, atLeastOnce()).requestAndGetWeatherStruct();
     }
 }

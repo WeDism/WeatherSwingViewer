@@ -7,7 +7,7 @@ import com.weather_viewer.gui.general.General;
 import javax.swing.*;
 import java.awt.*;
 
-public class StartPreview extends JFrame {
+public class StartPreview extends JFrame implements IPreview {
     private JPanel rootPanel;
 
     public StartPreview() {

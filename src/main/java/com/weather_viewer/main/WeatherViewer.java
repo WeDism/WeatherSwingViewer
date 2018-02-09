@@ -13,7 +13,10 @@ import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.General;
+import com.weather_viewer.gui.general.GeneralFormDelegate;
+import com.weather_viewer.gui.previews.start.IPreview;
 import com.weather_viewer.gui.previews.start.StartPreview;
+import com.weather_viewer.gui.settings.ISettings;
 import com.weather_viewer.gui.settings.Settings;
 
 import javax.swing.*;
@@ -47,8 +50,8 @@ public class WeatherViewer<T extends General> {
     }
 
     {
-        this.context.add(StartPreview.class, new StartPreview())
-                .add(Settings.class, new Settings(this.context));
+        this.context.add(IPreview.class, new StartPreview())
+                .add(ISettings.class, new Settings(this.context));
     }
 
     private WeatherViewer(Properties startUpConf) {
@@ -74,12 +77,13 @@ public class WeatherViewer<T extends General> {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Future<T> futureGeneral = executorService.submit(this.callable);
         this.general = futureGeneral.get();
+        this.context.add(GeneralFormDelegate.class, this.general);
         executorService.shutdown();
     }
 
     private void buildWorkerService() throws ObjectContainsException {
         this.context.add(IWorkerService.class,
-                WorkerService.build(this.connectorWeatherForDay, this.connectorForecastForTheWorkWeek, this.connectorSignatureDay, this.general));
+                WorkerService.build(this.connectorWeatherForDay, this.connectorForecastForTheWorkWeek, this.connectorSignatureDay, this.context));
     }
 
     public WeatherViewer start() throws ExecutionException, InterruptedException, ObjectContainsException {

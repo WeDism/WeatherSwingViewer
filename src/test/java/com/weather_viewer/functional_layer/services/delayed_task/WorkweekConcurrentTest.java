@@ -11,9 +11,8 @@ import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.functional_layer.weather_deserializers.*;
-import com.weather_viewer.gui.general.General;
+import helpers.TestData;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -25,15 +24,17 @@ import java.util.stream.Collectors;
 
 import static helpers.TestDataPaths.PATH_TO_CURRENT_DAY;
 import static helpers.TestDataPaths.PATH_TO_WORKWEEK;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class WorkweekConcurrentTest {
     private Logger LOGGER = Logger.getLogger(WorkweekConcurrentTest.class.getName());
 
     @Test(expected = ObjectContainsException.class)
     public void ConcurrentCreateInstance() throws Exception {
-        final IWeatherConnector<CurrentDay> connectorWeatherForDay = Mockito.mock(ApiConnector.class);
-        final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = Mockito.mock(ApiConnector.class);
-        final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay = Mockito.mock(ApiConnector.class);
+        final IWeatherConnector<CurrentDay> connectorWeatherForDay = mock(ApiConnector.class);
+        final IWeatherConnector<Workweek> connectorForecastForTheWorkWeek = mock(ApiConnector.class);
+        final IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay = mock(ApiConnector.class);
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(CurrentDay.SignatureCurrentDay.class, new SignatureCurrentDayDeserializer());
@@ -54,8 +55,8 @@ public class WorkweekConcurrentTest {
         CurrentDay currentDay = gson.fromJson(jsonElementCurrentDay, CurrentDay.class);
         Workweek workweek = gson.fromJson(jsonElementWorkweek, Workweek.class);
 
-        Mockito.when(connectorWeatherForDay.requestAndGetWeatherStruct()).thenReturn(currentDay);
-        Mockito.when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
+        when(connectorWeatherForDay.requestAndGetWeatherStruct()).thenReturn(currentDay);
+        when(connectorForecastForTheWorkWeek.requestAndGetWeatherStruct()).thenReturn(workweek);
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         List<Callable<Void>> callableList =
@@ -84,12 +85,13 @@ public class WorkweekConcurrentTest {
                      IWeatherConnector<Workweek> connectorForecastForTheWorkWeek,
                      IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay) throws ObjectContainsException {
         boolean isMade = true;
+
         while (isMade) {
             IWorkerService buildSecondThread = WorkerService.build(
                     connectorWeatherForDay,
                     connectorForecastForTheWorkWeek,
                     connectorSignatureDay,
-                    Mockito.mock(General.class));
+                    TestData.getMockContext());
             buildSecondThread.dispose();
             isMade = false;
         }

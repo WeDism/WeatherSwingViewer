@@ -2,6 +2,7 @@ package com.weather_viewer.functional_layer.services.delayed_task;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.neovisionaries.i18n.CountryCode;
+import com.weather_viewer.functional_layer.application.IContext;
 import com.weather_viewer.functional_layer.exceptions.EmptyCityException;
 import com.weather_viewer.functional_layer.exceptions.EmptyCountryException;
 import com.weather_viewer.functional_layer.exceptions.ObjectContainsException;
@@ -12,6 +13,7 @@ import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.GeneralFormDelegate;
+import com.weather_viewer.gui.settings.ISettings;
 import com.weather_viewer.gui.settings.SettingsFormDelegate;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,17 +44,16 @@ public class WorkerService implements IWorkerService {
 
     private WorkerService(IWeatherConnector<CurrentDay> connectorCurrentDay,
                           IWeatherConnector<Workweek> connectorWorkweek,
-                          IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                          GeneralFormDelegate generalFormListener) throws ObjectContainsException {
+                          IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay, IContext context) throws ObjectContainsException {
         this.validateObjects(connectorCurrentDay);
         this.connectorCurrentDay = connectorCurrentDay;
         this.validateObjects(connectorWorkweek);
         this.connectorWorkweek = connectorWorkweek;
         this.validateObjects(connectorSignatureDay);
         this.connectorSignatureDay = connectorSignatureDay;
-        this.validateObjects(generalFormListener);
-        this.generalFormListener = generalFormListener;
-        this.settingsListener = generalFormListener.getSettingsForm();
+        this.generalFormListener = (GeneralFormDelegate) context.get(GeneralFormDelegate.class);
+        this.validateObjects(this.generalFormListener);
+        this.settingsListener = (SettingsFormDelegate) context.get(ISettings.class);
         this.currentDay = generalFormListener.getCurrentDay();
         this.workweek = generalFormListener.getWorkweek();
 
@@ -104,8 +105,8 @@ public class WorkerService implements IWorkerService {
     public synchronized static IWorkerService build(IWeatherConnector<CurrentDay> connectorCurrentDay,
                                                     IWeatherConnector<Workweek> connectorWorkweek,
                                                     IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
-                                                    GeneralFormDelegate generalFormListener) throws ObjectContainsException {
-        return new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, generalFormListener);
+                                                    IContext context) throws ObjectContainsException {
+        return new WorkerService(connectorCurrentDay, connectorWorkweek, connectorSignatureDay, context);
     }
 
     @Override

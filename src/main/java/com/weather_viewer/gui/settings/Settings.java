@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Settings extends JDialog implements SettingsFormDelegate {
+public class Settings extends JDialog implements SettingsFormDelegate, ISettings {
     private final static Logger LOGGER = Logger.getLogger(Settings.class.getName());
     private final IContext context;
     private JPanel contentPane;
@@ -206,6 +206,25 @@ public class Settings extends JDialog implements SettingsFormDelegate {
         loadingLabel.setText("");
         loadingLabel.setVisible(false);
         loadingPanel.add(loadingLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**

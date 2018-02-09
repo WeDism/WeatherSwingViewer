@@ -10,9 +10,8 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.gui.general.jtable.DoubleClickMouseAdapter;
 import com.weather_viewer.gui.general.jtable.WorkweekTable;
-import com.weather_viewer.gui.previews.start.StartPreview;
-import com.weather_viewer.gui.settings.Settings;
-import com.weather_viewer.gui.settings.SettingsFormDelegate;
+import com.weather_viewer.gui.previews.start.IPreview;
+import com.weather_viewer.gui.settings.ISettings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -78,14 +77,14 @@ public class General extends JFrame implements GeneralFormDelegate {
     private JButton viewHistoryOfNotificationsButton;
     private JSpinner spinner1;
     private JTable workweekJTable;
-    private final Settings settings;
-    private final StartPreview startPreview;
+    private final ISettings settings;
+    private final IPreview startPreview;
     private final IContext context;
     //endregion
 
     public General(IContext context) throws HeadlessException {
-        this.settings = (Settings) context.get(Settings.class);
-        this.startPreview = ((StartPreview) context.get(StartPreview.class));
+        this.settings = (ISettings) context.get(ISettings.class);
+        this.startPreview = (IPreview) context.get(IPreview.class);
         this.context = context;
         this.initGeneral();
     }
@@ -192,11 +191,6 @@ public class General extends JFrame implements GeneralFormDelegate {
     @Override
     public AtomicReference<Workweek> getWorkweek() {
         return this.workweek;
-    }
-
-    @Override
-    public SettingsFormDelegate getSettingsForm() {
-        return this.settings;
     }
 
     {

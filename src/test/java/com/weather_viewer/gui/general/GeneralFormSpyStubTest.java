@@ -6,7 +6,9 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
+import com.weather_viewer.gui.previews.start.IPreview;
 import com.weather_viewer.gui.previews.start.StartPreview;
+import com.weather_viewer.gui.settings.ISettings;
 import com.weather_viewer.gui.settings.Settings;
 import com.weather_viewer.main.WeatherViewer;
 import org.jetbrains.annotations.Contract;
@@ -88,8 +90,8 @@ public class GeneralFormSpyStubTest {
                 = Mockito.mock(ApiConnector.class);
 
         final IContext context = Context.build();
-        context.add(StartPreview.class, new PreviewFormStub())
-                .add(Settings.class, new Settings(context));
+        context.add(IPreview.class, new PreviewFormStub())
+                .add(ISettings.class, new Settings(context));
 
 
         Callable<GeneralFormStart> generalFormStartCallable = () -> new GeneralFormStart(context);
@@ -101,7 +103,7 @@ public class GeneralFormSpyStubTest {
         while (!general.wasPerform() && LocalDateTime.now().isBefore(maxTime)) ;
 
         Assert.assertTrue("General form was not disposed", general.wasPerform());
-        Assert.assertTrue("StartPreview was not disposed", ((PreviewFormStub) context.get(StartPreview.class)).wasDisposed());
+        Assert.assertTrue("StartPreview was not disposed", ((PreviewFormStub) context.get(IPreview.class)).wasDisposed());
 
         verify(connectorWeatherForDay, times(1)).requestAndGetWeatherStruct();
         verify(connectorForecastForTheWorkWeek, times(1)).requestAndGetWeatherStruct();
