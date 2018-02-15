@@ -13,10 +13,10 @@ import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.ApiConnector;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
 import com.weather_viewer.gui.general.General;
-import com.weather_viewer.gui.general.GeneralFormDelegate;
-import com.weather_viewer.gui.previews.start.IPreview;
+import com.weather_viewer.functional_layer.services.delayed_task.GeneralFormDelegate;
+import com.weather_viewer.functional_layer.services.delayed_task.IPreview;
 import com.weather_viewer.gui.previews.start.StartPreview;
-import com.weather_viewer.gui.settings.ISettings;
+import com.weather_viewer.functional_layer.services.delayed_task.ISettings;
 import com.weather_viewer.gui.settings.Settings;
 
 import javax.swing.*;

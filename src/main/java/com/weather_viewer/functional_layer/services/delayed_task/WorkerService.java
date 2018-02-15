@@ -12,9 +12,6 @@ import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.IWeatherStruct;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.functional_layer.weather_connector.IWeatherConnector;
-import com.weather_viewer.gui.general.GeneralFormDelegate;
-import com.weather_viewer.gui.settings.ISettings;
-import com.weather_viewer.gui.settings.SettingsFormDelegate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

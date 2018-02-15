@@ -2,6 +2,7 @@ package com.weather_viewer.gui.previews.start;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.weather_viewer.functional_layer.services.delayed_task.IPreview;
 import com.weather_viewer.gui.general.General;
 
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package com.weather_viewer.gui.previews.start;
+package com.weather_viewer.functional_layer.services.delayed_task;
 
 import java.awt.*;
 

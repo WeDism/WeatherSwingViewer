@@ -5,13 +5,14 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.toedter.calendar.JCalendar;
 import com.weather_viewer.functional_layer.application.IContext;
+import com.weather_viewer.functional_layer.services.delayed_task.GeneralFormDelegate;
 import com.weather_viewer.functional_layer.services.delayed_task.IWorkerService;
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import com.weather_viewer.gui.general.jtable.DoubleClickMouseAdapter;
 import com.weather_viewer.gui.general.jtable.WorkweekTable;
-import com.weather_viewer.gui.previews.start.IPreview;
-import com.weather_viewer.gui.settings.ISettings;
+import com.weather_viewer.functional_layer.services.delayed_task.IPreview;
+import com.weather_viewer.functional_layer.services.delayed_task.ISettings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

@@ -4,8 +4,8 @@ import com.neovisionaries.i18n.CountryCode;
 import com.weather_viewer.functional_layer.application.IContext;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.City;
 import com.weather_viewer.functional_layer.structs.location.concrete_location.Country;
-import com.weather_viewer.gui.general.GeneralFormDelegate;
-import com.weather_viewer.gui.settings.ISettings;
+import com.weather_viewer.functional_layer.services.delayed_task.GeneralFormDelegate;
+import com.weather_viewer.functional_layer.services.delayed_task.ISettings;
 import com.weather_viewer.gui.settings.Settings;
 
 import static org.mockito.Mockito.mock;

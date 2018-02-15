@@ -1,4 +1,4 @@
-package com.weather_viewer.gui.general;
+package com.weather_viewer.functional_layer.services.delayed_task;
 
 import com.weather_viewer.functional_layer.structs.weather.CurrentDay;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;

@@ -1,4 +1,4 @@
-package com.weather_viewer.gui.settings;
+package com.weather_viewer.functional_layer.services.delayed_task;
 
 import java.util.EventListener;
 
