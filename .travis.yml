@@ -6,7 +6,7 @@ deploy:
   provider: releases
   api_key:
     secure: SGVNLFxaZI+n5+mF9//4hEk7M90WH6CFLzXzBoVyhfml/fZgfXCQCSVbbjT8p3rcLTW+vjl9aLmuVGwDbMhUmhsr+OlPliN5WOSMmG+i0hTWMozqDO3swIdJxfFUwRY2yd8t2cPunXwlU7UjkYVZSFBpO8mGNETxvXGZiRVQ5QlLpal+pvgxPH/ISwx0m7qYA+RatuK9XTdoYhsgWGs05P4CUfPSKcM/Jmh5xHSVzbWaMGkXKTjZdDLiQyDG+abyWbl/FDvG6a5q/vF6eAJyzXNSsEvyJK/6u7DWI7ZraNUE31g3NNZpyW0XSjCf3RY9081SkR1s23PKK3377/pUyj7bH0denZkpzb6e6Aj1ltd27ulVcTn+45j7AD3RpHket0zxDJvovS21SbEXWNLD6I+LgUaAuTHBId9OV8YOb5x2Cipx7ToNHJ01IdEmTKb6oekB9kBq7F/CoaklaGfWRJuZwIwdVZCLwSpdySe7AIpOvxJ5HAya+wynw+PHnEXeU/2i1WhLiUu9lv0guErTJxcMP4rZDZjuc5wc2goUcDEwUyjjkekKHfiOaHolulcVRtsXoRYIerYFjirMZvTs6jpi7T+1d7Nn4rPYjCf8kpERrJ9H6rTqzVxCTuA8YXNvvexa90aABXrmbZqQG3fhUnS1WJxsvqiC7r+vZmWE7/g=
-  file: WeatherSwingViewer-1.0-full.jar
+  file: $TRAVIS_BUILD_DIR/WeatherSwingViewer-1.0-full.jar
   on:
     repo: WeDism/WeatherSwingViewer
 addons:
