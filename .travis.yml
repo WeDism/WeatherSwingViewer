@@ -2,6 +2,13 @@ language: java
 sudo: false
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+deploy:
+  provider: releases
+  api_key: bUfu2qq5spht4L1acQC3/RDb6xxzdCF13yBRtgQOLIk5vJseOi5gqXfm9pTGM5e1/e5RCwcRmUWdxLZIWClWoGpYex+3IbftxGTTdIYdOO7Xzbz59LssaT9pQg51OlgFT1vpFM0RJi8j/1m23VZvrjfrmfbTX1Q1KTD69WtxBvp+HdPQFxfXq9RCtJ1BoCve3S+Jr5xxzNhi8OiQD5WiHYNxMF0KXO9owJVg8P/T0WlMgure2Et+3Iss6Eb8eu6nzck1H0h30wY6aYA5cvmhBDgJDuOxKVp93ayHcq80HwMAdQ2WmuUmKNdwjzAQHBKrLbsh3A//ZqLEBHCaZgKmnXmULS82EtWPEXsNaIaTZzs9/SAVdIidR3SI3DkPIfvcInq+R1ZeFjARJ5Nroj7u4KNsd+/jCR6nKZStoipUCIrLESjcjblo7zHzW/T8JUDdAcZXYkD6NWUee5+NATEuKi8KDrFhe6hvTpV6uFflAgg9kwoJBLp6iy52IJmO/Xp2m06sFduqeMRQlnvqglY2f+m+4q9XMngZdyNRAYAgpJKUn3tAErM3B5LO6HuP5ywSacW5Uty7oH0e3OPfMfni+vxV+zqCs2MDhqtyHEMzhpnXVWuXEVgOjIlJ41F45qnOGtl0yVgjQHHbZmRmtAETEU+ZL3t52SVvxpqvTde4nAY=
+  file: $TRAVIS_BUILD_DIR/WeatherSwingViewer-1.0-full.jar
+  skip_cleanup: true
+  on:
+    tags: true
 addons:
   apt:
     packages:
@@ -15,6 +22,3 @@ notifications:
     - wedinakawer58@gmail.com
     on_success: never
     on_failure: always
-env:
-  matrix:
-    secure: bUfu2qq5spht4L1acQC3/RDb6xxzdCF13yBRtgQOLIk5vJseOi5gqXfm9pTGM5e1/e5RCwcRmUWdxLZIWClWoGpYex+3IbftxGTTdIYdOO7Xzbz59LssaT9pQg51OlgFT1vpFM0RJi8j/1m23VZvrjfrmfbTX1Q1KTD69WtxBvp+HdPQFxfXq9RCtJ1BoCve3S+Jr5xxzNhi8OiQD5WiHYNxMF0KXO9owJVg8P/T0WlMgure2Et+3Iss6Eb8eu6nzck1H0h30wY6aYA5cvmhBDgJDuOxKVp93ayHcq80HwMAdQ2WmuUmKNdwjzAQHBKrLbsh3A//ZqLEBHCaZgKmnXmULS82EtWPEXsNaIaTZzs9/SAVdIidR3SI3DkPIfvcInq+R1ZeFjARJ5Nroj7u4KNsd+/jCR6nKZStoipUCIrLESjcjblo7zHzW/T8JUDdAcZXYkD6NWUee5+NATEuKi8KDrFhe6hvTpV6uFflAgg9kwoJBLp6iy52IJmO/Xp2m06sFduqeMRQlnvqglY2f+m+4q9XMngZdyNRAYAgpJKUn3tAErM3B5LO6HuP5ywSacW5Uty7oH0e3OPfMfni+vxV+zqCs2MDhqtyHEMzhpnXVWuXEVgOjIlJ41F45qnOGtl0yVgjQHHbZmRmtAETEU+ZL3t52SVvxpqvTde4nAY=
