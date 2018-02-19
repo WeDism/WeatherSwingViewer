@@ -30,6 +30,6 @@ install:
 notifications:
   email:
     recipients:
-      - wer58@yandex.ru
+      - wedinakawer58@gmail.com
     on_success: never # default: change
     on_failure: always # default: always
