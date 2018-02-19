@@ -1,6 +1,5 @@
 package com.weather_viewer.main;
 
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import com.weather_viewer.functional_layer.application.Context;
 import com.weather_viewer.functional_layer.application.IContext;
 import com.weather_viewer.functional_layer.exceptions.ObjectContainsException;
@@ -41,7 +40,7 @@ public class WeatherViewer<T extends General> {
 
     static {
         try {
-            UIManager.setLookAndFeel(new WindowsLookAndFeel());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             UIManager.getLookAndFeelDefaults()
                     .put("defaultFont", new Font("Arial", Font.PLAIN, 14));
         } catch (Exception ex) {
