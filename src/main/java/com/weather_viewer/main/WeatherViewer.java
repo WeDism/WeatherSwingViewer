@@ -53,6 +53,7 @@ public class WeatherViewer<T extends General> {
                 .add(ISettings.class, new Settings(this.context));
     }
 
+    @SuppressWarnings("unchecked")
     private WeatherViewer(Properties startUpConf) {
         City samara = new City(startUpConf.getProperty("currentCity"));
         Country ru = new Country(startUpConf.getProperty("countryCode"));
