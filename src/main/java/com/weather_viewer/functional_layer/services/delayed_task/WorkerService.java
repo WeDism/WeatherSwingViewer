@@ -61,6 +61,7 @@ public class WorkerService implements IWorkerService {
         }, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
     }
 
+    @SuppressWarnings("unchecked")
     private void validateObjects(Object object) throws ObjectContainsException {
         if (!WorkerService.UNIQUE_CONNECTORS_AND_DELEGATE.contains(object))
             WorkerService.UNIQUE_CONNECTORS_AND_DELEGATE.add(object);

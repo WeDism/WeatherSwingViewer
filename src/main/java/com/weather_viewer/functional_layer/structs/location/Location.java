@@ -23,6 +23,7 @@ public abstract class Location {
     }
 
     @Nullable
+    @SuppressWarnings("unchecked")
     public static <T extends Location> T newInstance(@NotNull T location) {
         try {
             return (T) location.getClass().getConstructor(String.class).newInstance(location.toString());
