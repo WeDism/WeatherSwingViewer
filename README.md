@@ -16,7 +16,7 @@
 1. Run WeatherSwingViewer-1.0-full.jar
 
 ### Use case tutorial
-Finally you are viewed splash screen:
+On startup you are viewed splash screen:
 
 ![splash screen](/src/main/resources/gifs/loading.gif)
 
@@ -24,14 +24,15 @@ After initializing the application you have to saw main form.
 
 ![start up main form](/readme_images/startup_main_form.png)
 
-For changing current location you can click ***${Settings}*** and choose ***${Change Location}***. 
+For changing current location you can click ***${Settings}*** and choose ***${Change Location}*** . 
 You can see empty ***${Choose location}*** form in next image with unchecked ***${City is find}*** checkbox.
 
 ![choose location form](/readme_images/empty_choose_location_form.png)
 
 Next first step you have to input city in text box under ***${Search city}*** label and in  second step should be selected
 combobox with needed country under ***${Select country}*** label. 
-After these steps you have to click on ***${Search}*** button for search. And you see search your location. See next image.
+After these steps you have to click on ***${Search}*** button for search. And you see search your location. 
+This is action you can see the next image.
 
 ![searching location form](/readme_images/searching_choose_location_form.png)
 
@@ -43,4 +44,4 @@ After input data click ***${OK}*** button for view current and forecast weather.
 
 ![main form after valid data](/readme_images/main_form_after_valid_data.png)
 
-For detailed forecast on the 5 days view click on ${Forecast for the workweek}.
+For detailed forecast on the 5 days view click on ***${Forecast for the workweek}***.
