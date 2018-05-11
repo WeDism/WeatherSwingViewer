@@ -36,7 +36,7 @@ This is action you can see the next image.
 
 ![searching location form](/readme_images/searching_choose_location_form.png)
 
-If your data is valid you should saw form with checked (it't good 👍)***${City is find}*** checkbox. As in the following image.
+If your data is valid you should saw form with checked (it't good 👍) ***${City is find}*** checkbox. As in the following image.
 
 ![true filled choose location form](/readme_images/true_filled_choose_location_form.png)
 
