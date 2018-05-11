@@ -24,7 +24,7 @@ After initializing the application you have to saw main form.
 
 ![start up main form](/readme_images/startup_main_form.png)
 
-For changing current location you can click ***${Settings}*** and choose ***${Change Location}*** . 
+For changing current location you can click ***${Settings}*** and choose ***${Change Location}*** menu item. 
 You can see empty ***${Choose location}*** form in next image with unchecked ***${City is find}*** checkbox.
 
 ![choose location form](/readme_images/empty_choose_location_form.png)
@@ -36,7 +36,7 @@ This is action you can see the next image.
 
 ![searching location form](/readme_images/searching_choose_location_form.png)
 
-If your data is valid you should saw form with checked ***${City is find}*** checkbox. As in the following image.
+If your data is valid you should saw form with checked (it't good 👍)***${City is find}*** checkbox. As in the following image.
 
 ![true filled choose location form](/readme_images/true_filled_choose_location_form.png)
 
@@ -44,4 +44,4 @@ After input data click ***${OK}*** button for view current and forecast weather.
 
 ![main form after valid data](/readme_images/main_form_after_valid_data.png)
 
-For detailed forecast on the 5 days view click on ***${Forecast for the workweek}***.
+For detailed forecast on the 5 days view click on ***${Forecast for the workweek}*** panel.
