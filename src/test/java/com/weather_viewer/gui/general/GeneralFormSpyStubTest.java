@@ -86,7 +86,7 @@ public class GeneralFormSpyStubTest {
                 = spy(ApiConnector.build(SAMARA, RU_COUNTRY, CurrentDay.class));
         IWeatherConnector<Workweek> connectorForecastForTheWorkWeek
                 = spy(ApiConnector.build(SAMARA, RU_COUNTRY, Workweek.class));
-        IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay
+        @SuppressWarnings("unchecked") IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay
                 = Mockito.mock(ApiConnector.class);
 
         final IContext context = Context.build();
@@ -95,7 +95,7 @@ public class GeneralFormSpyStubTest {
 
 
         Callable<GeneralFormStart> generalFormStartCallable = () -> new GeneralFormStart(context);
-        WeatherViewer<GeneralFormStart> start = WeatherViewer.getInstance
+        @SuppressWarnings("unchecked") WeatherViewer<GeneralFormStart> start = WeatherViewer.getInstance
                 (connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, generalFormStartCallable).start();
         GeneralFormStart general = start.getGeneral();
 

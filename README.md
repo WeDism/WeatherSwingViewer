@@ -44,4 +44,10 @@ After input data click ***${OK}*** button for view current and forecast weather.
 
 ![main form after valid data](/readme_images/main_form_after_valid_data.png)
 
-For detailed forecast on the 5 days view click on ***${Forecast for the workweek}*** panel.
+For detailed forecast on the 5 days view click on ***${Forecast for the Workweek}*** panel.
+
+![forecast for workweek panel](/readme_images/forecast_for_workweek_panel.png)
+
+If you double click on the row in the column you can see the dialog with detailed information forecast each 3 hours.
+
+![forecast per 3 hours dialog](/readme_images/forecast_for_workweek_panel.png)

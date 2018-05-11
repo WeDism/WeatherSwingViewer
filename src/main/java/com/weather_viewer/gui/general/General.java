@@ -84,9 +84,11 @@ public class General extends JFrame implements GeneralFormDelegate {
     //endregion
 
     public General(IContext context) throws HeadlessException {
+        this.context = context;
+        this.context.add(JFrame.class, this);
+        this.context.add(Workweek.class, this.workweek);
         this.settings = (ISettings) context.get(ISettings.class);
         this.startPreview = (IPreview) context.get(IPreview.class);
-        this.context = context;
         this.initGeneral();
     }
 
@@ -128,8 +130,9 @@ public class General extends JFrame implements GeneralFormDelegate {
 
     private void initJPanelForecast() {
         this.workweekJTable = new JTable();
+        this.context.add(JTable.class, this.workweekJTable);
         this.workweekJTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.workweekJTable.addMouseListener(new DoubleClickMouseAdapter(this.workweekJTable, this, this.workweek));
+        this.workweekJTable.addMouseListener(new DoubleClickMouseAdapter(context));
         this.workweekJTable.setShowVerticalLines(false);
         this.workweekJTable.setFont(new Font("Arial", Font.PLAIN, 22));
         this.workweekJTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);

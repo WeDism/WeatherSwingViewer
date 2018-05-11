@@ -3,6 +3,7 @@ package com.weather_viewer.gui.general.jtable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.weather_viewer.functional_layer.application.IContext;
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 import org.jetbrains.annotations.NotNull;
@@ -10,11 +11,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 
 import static com.weather_viewer.gui.consts.Sign.*;
 
 public class DayView extends JDialog {
+    private final JFrame general;
     private JPanel contentPane;
     private JLabel locationLabel;
     private JLabel dateLabel;
@@ -26,19 +30,30 @@ public class DayView extends JDialog {
     private JLabel windDegreesLabel;
     private JLabel timeLabel;
 
-    public DayView(JFrame general, @NotNull Workweek workweek, @NotNull Day day) {
-        this.setTitle("Forecast per " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getDateTime()));
+    public DayView(IContext context) {
+        this.general = ((JFrame) context.get(JFrame.class));
         this.contentPane.registerKeyboardAction(e -> dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                setVisible(false);
+            }
+        });
 
         this.setMinimumSize(new Dimension(500, 400));
-        this.setLocationRelativeTo(general);
-        this.setData(workweek, day);
-        this.setIconImage(general.getIconImage());
+        this.setLocationRelativeTo(this.general);
+        this.setIconImage(this.general.getIconImage());
         this.setContentPane(this.contentPane);
         this.setModal(true);
         this.setResizable(false);
-        this.setVisible(true);
+        this.setVisible(false);
         this.pack();
+    }
+
+    public void updateData(@NotNull Workweek workweek, @NotNull Day day) {
+        this.setTitle("Forecast per " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(day.getDateTime()));
+        this.setData(workweek, day);
+        this.setLocationRelativeTo(this.general);
+        this.setVisible(true);
     }
 
     private void setData(@NotNull Workweek workweek, @NotNull Day day) {

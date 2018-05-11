@@ -93,7 +93,7 @@ public class WeatherViewer<T extends General> {
     }
 
     public synchronized static WeatherViewer getInstance(Properties startUpConf) throws InterruptedException {
-        previewGetInstance();
+        WeatherViewer.previewGetInstance();
         WeatherViewer.weatherViewer = new WeatherViewer(startUpConf);
         LOGGER.log(Level.INFO, "WeatherViewer was created");
         return weatherViewer;
@@ -103,10 +103,10 @@ public class WeatherViewer<T extends General> {
                                                                              IWeatherConnector<Workweek> connectorForecastForTheWorkWeek,
                                                                              IWeatherConnector<CurrentDay.SignatureCurrentDay> connectorSignatureDay,
                                                                              Callable<T> callable) throws InterruptedException {
-        previewGetInstance();
+        WeatherViewer.previewGetInstance();
         WeatherViewer.weatherViewer = new WeatherViewer<>(connectorWeatherForDay, connectorForecastForTheWorkWeek, connectorSignatureDay, callable);
         LOGGER.log(Level.INFO, "WeatherViewer was created");
-        return weatherViewer;
+        return WeatherViewer.weatherViewer;
 
     }
 
@@ -116,17 +116,17 @@ public class WeatherViewer<T extends General> {
             LOGGER.log(Level.INFO, String.format("Thread %s is wait", Thread.currentThread().getName()));
             WeatherViewer.class.wait();
             LOGGER.log(Level.INFO, String.format("Thread %s is run", Thread.currentThread().getName()));
-        } else weatherViewer.dispose();
+        } else WeatherViewer.weatherViewer.dispose();
     }
 
     public T getGeneral() {
-        return general;
+        return this.general;
     }
 
     public void dispose() {
         synchronized (WeatherViewer.class) {
-            weatherViewer = null;
-            general.dispose();
+            WeatherViewer.weatherViewer = null;
+            this.general.dispose();
             WeatherViewer.class.notify();
         }
     }

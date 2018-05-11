@@ -1,5 +1,7 @@
 package com.weather_viewer.gui.general.jtable;
 
+import com.weather_viewer.functional_layer.application.Context;
+import com.weather_viewer.functional_layer.application.IContext;
 import com.weather_viewer.functional_layer.structs.weather.Day;
 import com.weather_viewer.functional_layer.structs.weather.Workweek;
 
@@ -10,13 +12,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class DoubleClickMouseAdapter extends MouseAdapter {
     private final JTable workweekJTable;
-    private final JFrame general;
     private final AtomicReference<Workweek> workweek;
+    private final DayView dayView;
 
-    public DoubleClickMouseAdapter(JTable workweekJTable, JFrame general, AtomicReference<Workweek> workweek) {
-        this.workweekJTable = workweekJTable;
-        this.general = general;
-        this.workweek = workweek;
+    @SuppressWarnings("unchecked")
+    public DoubleClickMouseAdapter(IContext context) {
+        this.workweekJTable = ((JTable) context.get(JTable.class));
+        this.workweek = ((AtomicReference<Workweek>) context.get(Workweek.class));
+        this.dayView = new DayView(context);
     }
 
     @Override
@@ -24,7 +27,7 @@ public class DoubleClickMouseAdapter extends MouseAdapter {
         if (e.getClickCount() == 2) {
             super.mouseClicked(e);
             Day day = ((WorkweekTable) this.workweekJTable.getModel()).getValueAt(this.workweekJTable.rowAtPoint(e.getPoint()));
-            new DayView(this.general, this.workweek.get(), day);
+            this.dayView.updateData(this.workweek.get(), day);
         }
     }
 }
