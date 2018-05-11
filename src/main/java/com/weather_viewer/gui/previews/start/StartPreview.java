@@ -8,15 +8,21 @@ import com.weather_viewer.gui.general.General;
 import javax.swing.*;
 import java.awt.*;
 
+import static java.awt.GraphicsDevice.WindowTranslucency.*;
+
 public class StartPreview extends JFrame implements IPreview {
     private JPanel rootPanel;
 
     public StartPreview() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        boolean isPerPixelTranslucencySupported = gd.isWindowTranslucencySupported(PERPIXEL_TRANSLUCENT);
+
         this.setLocationRelativeTo(null);
         this.getContentPane().add(this.rootPanel);
         this.setUndecorated(true);
 
-        this.setBackground(new Color(0, 0, 0, 0));
+        if (isPerPixelTranslucencySupported) this.setBackground(new Color(0, 0, 0, 0));
         this.setIconImage(new ImageIcon(General.class.getResource("/images/PartlyCloudy.png")).getImage());
 
         this.pack();
