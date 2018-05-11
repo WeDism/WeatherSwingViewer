@@ -8,8 +8,8 @@
 1. [How run app](#steps-to-run-on-windows-system)
 1. [Tutorial](#use-case-tutorial)
 
-## For run this app you have to do next steps
-### Steps to run on windows system
+### For run this app you have to do next steps
+#### Steps to run on windows system
 1. Download and install jdk 8
 1. Download and install maven 3
 1. Open the environment variable window
@@ -19,7 +19,7 @@
 1. Will be created WeatherSwingViewer-1.0-full.jar into folder with title target
 1. Run WeatherSwingViewer-1.0-full.jar
 
-## Use case tutorial
+### Use case tutorial
 On startup you are viewed splash screen:
 
 ![splash screen](/src/main/resources/gifs/loading.gif)
