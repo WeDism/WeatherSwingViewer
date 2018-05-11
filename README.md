@@ -5,10 +5,14 @@
 ![Weather Viewer](/src/main/resources/images/PartlyCloudy.png)
 
 ## Table of contents
-1. [How run app](#steps-to-run-on-windows-system)
+1. [How compile and run app](#steps-to-run-on-windows-system)
+1. [Tested systems](#tested-systems)
 1. [Tutorial](#use-case-tutorial)
+   1. [Startup](#startup)
+   1. [Changing current location](#changing-current-location)
+   1. [View forecast of the workweek](#view-forecast-of-the-workweek)
 
-### For run this app you have to do next steps
+### For compile and run this app you have to do next steps
 #### Steps to run on windows system
 1. Download and install jdk 8
 1. Download and install maven 3
@@ -19,15 +23,21 @@
 1. Will be created WeatherSwingViewer-1.0-full.jar into folder with title target
 1. Run WeatherSwingViewer-1.0-full.jar
 
+### Tested systems
+1. Windows 8
+1. Raspbian (arm linux based)
+
 ### Use case tutorial
+#### Startup
 On startup you are viewed splash screen:
 
 ![splash screen](/src/main/resources/gifs/loading.gif)
 
-After initializing the application you have to saw main form. 
+After success initializing the application you have to saw main form. 
 
 ![start up main form](/readme_images/startup_main_form.png)
 
+#### Changing current location
 For changing current location you can click ***${Settings}*** and choose ***${Change Location}*** menu item. 
 You can see empty ***${Choose location}*** form in next image with unchecked ***${City is find}*** checkbox.
 
@@ -48,6 +58,7 @@ After input data click ***${OK}*** button for view current and forecast weather.
 
 ![main form after valid data](/readme_images/main_form_after_valid_data.png)
 
+#### View forecast of the workweek
 For detailed forecast on the 5 days view click on ***${Forecast for the Workweek}*** panel.
 
 ![forecast for workweek panel](/readme_images/forecast_for_workweek_panel.png)
