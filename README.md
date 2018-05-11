@@ -25,7 +25,7 @@
 
 ### Tested systems
 1. Windows 8
-1. Raspbian (arm linux based)
+1. Raspbian (arm32 linux based)
 
 ### Use case tutorial
 #### Startup
@@ -33,7 +33,7 @@ On startup you are viewed splash screen:
 
 ![splash screen](/src/main/resources/gifs/loading.gif)
 
-After success initializing the application you have to saw main form. 
+After success initializing the application you have to see main form. 
 
 ![start up main form](/readme_images/startup_main_form.png)
 
@@ -43,14 +43,14 @@ You can see empty ***${Choose location}*** form in next image with unchecked ***
 
 ![choose location form](/readme_images/empty_choose_location_form.png)
 
-Next first step you have to input city in text box under ***${Search city}*** label and in  second step should be selected
+Next first step you have to input city in text box under ***${Search city}*** label and in second step should be selected
 combobox with needed country under ***${Select country}*** label. 
 After these steps you have to click on ***${Search}*** button for search. And you see search your location. 
 This is action you can see the next image.
 
 ![searching location form](/readme_images/searching_choose_location_form.png)
 
-If your data is valid you should saw form with checked (it't good 👍) ***${City is find}*** checkbox. As in the following image.
+If your data is valid you should see form with checked (it't good 👍) ***${City is find}*** checkbox. As in the following image.
 
 ![true filled choose location form](/readme_images/true_filled_choose_location_form.png)
 
