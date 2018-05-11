@@ -50,4 +50,4 @@ For detailed forecast on the 5 days view click on ***${Forecast for the Workweek
 
 If you double click on the row in the column you can see the dialog with detailed information forecast each 3 hours.
 
-![forecast per 3 hours dialog](/readme_images/forecast_for_workweek_panel.png)
+![forecast per 3 hours dialog](/readme_images/forecast_per_3_hour_dialog.png)
