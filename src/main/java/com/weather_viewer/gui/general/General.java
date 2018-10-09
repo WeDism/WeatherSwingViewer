@@ -156,7 +156,7 @@ public class General extends JFrame implements GeneralFormDelegate {
 
     @Override
     public void onUpdateForm() {
-        if (this.currentDay.get() != null && this.workweek != null) {
+        if (this.currentDay.get() != null && this.workweek.get() != null) {
             this.updateWeatherDayPanel(this.currentDay.get());
             this.updateJPanelForecast(this.workweek.get());
         }
